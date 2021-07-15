@@ -6,9 +6,11 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Color
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
+import android.widget.SeekBar
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
@@ -19,14 +21,15 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
 
     private val PICK_CSV_CODE = 10
-    private val MA_WINDOW = 4
     private val MOOD_MAP = mapOf(
         "terribile" to 2,
-        "male"      to 4,
+        "male" to 4,
         "così così" to 6,
-        "buono"     to 8,
-        "ottimo"    to 10
+        "buono" to 8,
+        "ottimo" to 10
     )
+
+    private lateinit var rawData: List<String>
 
     private lateinit var datasetRaw: LineDataSet
     private lateinit var datasetMA: LineDataSet
@@ -40,6 +43,8 @@ class MainActivity : AppCompatActivity() {
     private var textColor = -1
     private var mainLineColor = -1
     private var accentLineColor = -1
+    private var avg_window = 3
+    private var avg_render = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,6 +56,37 @@ class MainActivity : AppCompatActivity() {
         choose_btn.setOnClickListener {
             chooseFile()
         }
+
+        avg_swt.isEnabled = false
+        avg_swt.setOnCheckedChangeListener { _, isChecked ->
+            if (::rawData.isInitialized) {
+                if (isChecked) {
+                    window_lay.visibility = View.VISIBLE
+                    avg_render = true
+                    if (rawData.isNotEmpty()) updateGraph(rawData)
+                } else {
+                    window_lay.visibility = View.GONE
+                    avg_render = false
+                    updateGraph(rawData)
+                }
+            }
+        }
+
+        window_sb.isEnabled = false
+        window_sb.progress = avg_window - 3
+        window_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (::rawData.isInitialized) {
+                    avg_window = progress + 3
+                    updateGraph(rawData)
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+
+        })
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, dataIntent: Intent?) {
@@ -58,16 +94,18 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == PICK_CSV_CODE && resultCode == Activity.RESULT_OK) {
             val uri = dataIntent?.data
             if (uri != null) {
-                val lines = readTextFile(uri)
-                extractData(lines)
-                loadChartData()
+                rawData = readTextFile(uri)
+                updateGraph(rawData)
+
+                window_sb.isEnabled = true
+                avg_swt.isEnabled = true
             } else {
                 toast("No file selected")
             }
         }
     }
 
-    private fun extractData(rawData: List<String>) {
+    private fun updateGraph(rawData: List<String>) {
         val size = rawData.size - 1
         dates = Array(size) { "[null_date]" }
         moods = Array(size) { "[null_mood]" }
@@ -102,14 +140,16 @@ class MainActivity : AppCompatActivity() {
         // Create mood moving average entries list
         i = 0
         val moodMA = moodValues
-            .toList().windowed(MA_WINDOW, 1) { it.average() }
+            .toList().windowed(avg_window, 1) { it.average() }
             .map { it.toFloat() }
         val entriesMAArray = Array(moodMA.size) { Entry(0f, 0f) }
         for (ma in moodMA) {
-            entriesMAArray[i] = Entry(i.toFloat()+MA_WINDOW/2f, ma)
+            entriesMAArray[i] = Entry(i.toFloat() + avg_window / 2f, ma)
             i++
         }
         entriesMA = entriesMAArray.toList()
+
+        loadChartData()
     }
 
     private fun loadChartData() {
@@ -117,7 +157,7 @@ class MainActivity : AppCompatActivity() {
             // Create mood dataset
             datasetRaw = LineDataSet(entriesRaw, "Mood")
             with(datasetRaw) {
-                color = mainLineColor
+                color = if (avg_render) mainLineColor else accentLineColor
                 lineWidth = 0.8f
                 mode = LineDataSet.Mode.CUBIC_BEZIER
 
@@ -127,9 +167,9 @@ class MainActivity : AppCompatActivity() {
             }
 
             // Create mood moving average dataset
-            datasetMA = LineDataSet(entriesMA, "$MA_WINDOW Day average")
+            datasetMA = LineDataSet(entriesMA, "$avg_window Day average")
             with(datasetMA) {
-                color = accentLineColor
+                color = if (avg_render) accentLineColor else mainLineColor
                 lineWidth = 2f
                 mode = LineDataSet.Mode.CUBIC_BEZIER
 
@@ -139,7 +179,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             // Setup the chart
-            chart.data = LineData(listOf(datasetRaw, datasetMA))
+            if (avg_render) chart.data = LineData(listOf(datasetRaw, datasetMA))
+            else chart.data = LineData(datasetRaw)
 
             chart.xAxis.position = XAxis.XAxisPosition.BOTTOM
             chart.xAxis.setDrawGridLines(false)
@@ -147,8 +188,8 @@ class MainActivity : AppCompatActivity() {
             chart.xAxis.textColor = textColor
 
             chart.invalidate()
-            chart.setVisibleXRangeMinimum(10f)
-            chart.setVisibleXRangeMaximum(30f)
+            chart.setVisibleXRangeMinimum(7f)
+            chart.setVisibleXRangeMaximum(50f)
         } else {
             toast("No data to create graph")
         }
@@ -189,7 +230,8 @@ class MainActivity : AppCompatActivity() {
         startActivityForResult(intent, PICK_CSV_CODE)
     }
 
-    private fun readTextFile(uri: Uri): List<String> = contentResolver.openInputStream(uri)?.bufferedReader()?.useLines { it.toList() }!!
+    private fun readTextFile(uri: Uri): List<String> =
+        contentResolver.openInputStream(uri)?.bufferedReader()?.useLines { it.toList() }!!
 
     private fun toast(text: String) = Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
 }

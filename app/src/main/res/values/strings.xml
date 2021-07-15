@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">Daylio Tools</string>
     <string name="choose_xml_file">Choose XML file</string>
+    <string name="show_moving_average">Show moving average</string>
+    <string name="moving_average_window">Moving average window</string>
 </resources>
