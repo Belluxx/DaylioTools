@@ -57,7 +57,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:max="6" />
+            android:max="17" />
 
     </LinearLayout>
 

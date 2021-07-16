@@ -53,6 +53,9 @@ class MainActivity : AppCompatActivity() {
     private var textColor = -1
     private var mainLineColor = -1
     private var accentLineColor = -1
+    
+    private val MAX_GRAPH_POINTS = 100f
+    private val MIN_GRAPH_POINTS = 7f
     private var avg_window = 3
     private var avg_render = true
 
@@ -125,7 +128,7 @@ class MainActivity : AppCompatActivity() {
         rawData.forEach {
             if (i != -1) { // Skip first line (labels)
                 val rawEntries = it.split(",")
-                dates[i] = rawEntries[0]
+                dates[i] = rawEntries[1]
                 moods[i] = rawEntries[4]
             }
             i++
@@ -153,7 +156,7 @@ class MainActivity : AppCompatActivity() {
             .map { it.toFloat() }
         val entriesMAArray = Array(moodMA.size) { Entry(0f, 0f) }
         for (ma in moodMA) {
-            entriesMAArray[i] = Entry(i.toFloat() + avg_window / 2f, ma)
+            entriesMAArray[i] = Entry(i.toFloat(), ma)
             i++
         }
         entriesMA = entriesMAArray.toList()
@@ -197,8 +200,8 @@ class MainActivity : AppCompatActivity() {
             chart.xAxis.textColor = textColor
 
             chart.invalidate()
-            chart.setVisibleXRangeMinimum(7f)
-            chart.setVisibleXRangeMaximum(50f)
+            chart.setVisibleXRangeMinimum(MIN_GRAPH_POINTS)
+            chart.setVisibleXRangeMaximum(MAX_GRAPH_POINTS)
         } else {
             toast("No data to create graph")
         }
