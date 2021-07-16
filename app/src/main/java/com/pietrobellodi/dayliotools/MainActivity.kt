@@ -21,12 +21,22 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
 
     private val PICK_CSV_CODE = 10
-    private val MOOD_MAP = mapOf(
-        "terribile" to 2,
-        "male" to 4,
-        "così così" to 6,
-        "buono" to 8,
-        "ottimo" to 10
+    private val ERROR_CODE = -101f
+    private val MOOD_MAPS = mapOf(
+        "english" to mapOf( // English map
+            "awful" to 2,
+            "bad" to 4,
+            "meh" to 6,
+            "good" to 8,
+            "rad" to 10
+        ),
+        "italian" to mapOf( // Italian map
+            "terribile" to 2,
+            "male" to 4,
+            "così così" to 6,
+            "buono" to 8,
+            "ottimo" to 10
+        )
     )
 
     private lateinit var rawData: List<String>
@@ -124,9 +134,8 @@ class MainActivity : AppCompatActivity() {
         dates.reverse()
 
         // Translate mood strings to numbers
-        moodValues = moods.map {
-            MOOD_MAP[it]!!.toFloat()
-        }.toTypedArray()
+        moodValues = convertMoods(moods)
+        if (moodValues[0] == ERROR_CODE) return
 
         // Create mood entries list
         i = 0
@@ -193,6 +202,31 @@ class MainActivity : AppCompatActivity() {
         } else {
             toast("No data to create graph")
         }
+    }
+
+    private fun convertMoods(moods: Array<String>): Array<Float> {
+        var map: Map<String, Int> = mapOf()
+
+        var found = false
+        MOOD_MAPS.forEach { (_, _map) ->
+            if (_map.containsKey(moods[0])) {
+                map = _map
+                found = true
+            }
+        }
+        if (!found) {
+            toast("Your language is not supported")
+            return arrayOf(ERROR_CODE)
+        }
+
+        return moods.mapNotNull {
+            if (map.containsKey(it)) {
+                return@mapNotNull map[it]!!.toFloat()
+            } else {
+                toast("CSV File corrupted")
+                return@mapNotNull null
+            }
+        }.toTypedArray()
     }
 
     private fun setupColors() {
