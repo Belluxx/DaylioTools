@@ -19,7 +19,7 @@
         android:id="@+id/choose_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/choose_xml_file"
+        android:text="@string/choose_csv_file"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
