@@ -22,6 +22,7 @@ Now you're ready to **use DaylioTools**
 As of now there are only two languages available:  
 * English
 * Italian
+* German
 
 Also, only the 5 default moods are available.
 
