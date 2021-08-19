@@ -36,6 +36,13 @@ class MainActivity : AppCompatActivity() {
             "così così" to 6,
             "buono" to 8,
             "ottimo" to 10
+        ),
+        "german" to mapOf( // German map
+            "Einfach scheiße" to 2,
+            "Schlecht" to 4,
+            "Ok" to 6,
+            "Gut" to 8,
+            "Super" to 10
         )
     )
 
