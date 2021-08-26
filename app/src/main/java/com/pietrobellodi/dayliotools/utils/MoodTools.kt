@@ -1,13 +1,13 @@
 package com.pietrobellodi.dayliotools.utils
 
-import android.app.AlertDialog
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
-import android.widget.Toast
+import androidx.fragment.app.FragmentManager
+import com.pietrobellodi.dayliotools.fragments.NewMoodDialogFragment
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MoodTools(private val ctx: Context, private val cr: ContentResolver) {
+class MoodTools(private val ctx: Context, private val fm: FragmentManager, private val cr: ContentResolver) {
 
     val LANGUAGES = arrayOf("english", "italian", "german")
     private val MOOD_MAPS = mapOf(
@@ -74,32 +74,26 @@ class MoodTools(private val ctx: Context, private val cr: ContentResolver) {
     }
 
     private fun convertMoods(moods: Array<String>, language: String): Array<Float> {
-        val map: Map<String, Int> = MOOD_MAPS[language]!!
+        val moodMap = MOOD_MAPS[language]!!
+        val customMoodMap = customMoods[language]!!
 
         return moods.mapNotNull {
-            if (map.containsKey(it)) {
-                return@mapNotNull map[it]!!.toFloat()
-            } else { // Mood not contained in MOOD_MAPS
-                askNewCustomMood(it)
-                return@mapNotNull null
+            if (moodMap.containsKey(it)) {
+                return@mapNotNull moodMap[it]!!.toFloat()
+            } else { // Mood not contained in moodMap
+                if (customMoodMap.containsKey(it)) {
+                    return@mapNotNull customMoodMap[it]!!.toFloat()
+                } else { // Mood unknown
+                    askNewCustomMood(language, it)
+                    return@mapNotNull null
+                }
             }
         }.toTypedArray()
     }
 
-    private fun askNewCustomMood(mood: String) {
-        val builder: AlertDialog.Builder = this.let {
-            AlertDialog.Builder(ctx)
-        }
-        builder.setTitle("Add custom mood")
-        builder.setMessage("The mood $mood was not recognized, please provide a value for that mood (between 0-10):")
-        builder.setPositiveButton("OK") { dialog, id ->
-            Toast.makeText(ctx, "Custom mood added", Toast.LENGTH_SHORT).show()
-        }
-        builder.setOnCancelListener {
-            Toast.makeText(ctx, "Canceled", Toast.LENGTH_SHORT).show()
-        }
-        val dialog: AlertDialog? = builder.create()
-        dialog!!.show()
+    private fun askNewCustomMood(language: String, mood: String) {
+        val dialog = NewMoodDialogFragment(language, mood, customMoods)
+        dialog.show(fm, "NewMoodDialog")
     }
 
     private fun readTextFile(uri: Uri): List<String> =

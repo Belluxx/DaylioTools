@@ -17,6 +17,11 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.pietrobellodi.dayliotools.utils.MoodTools
 import kotlinx.android.synthetic.main.activity_main.*
 
+// TODO Save custom moods
+// TODO Avoid redefinition of custom moods
+// TODO Allow management of custom moods
+// TODO Reload graph after custom moods are saved
+
 class MainActivity : AppCompatActivity() {
 
     private val PICK_CSV_CODE = 10
@@ -41,7 +46,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun initVars() {
         LANGUAGES = resources.getStringArray(R.array.languages_array)
-        mt = MoodTools(this, contentResolver)
+        mt = MoodTools(this, supportFragmentManager, contentResolver)
         setupColors()
     }
 
