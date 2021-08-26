@@ -61,4 +61,13 @@
 
     </LinearLayout>
 
+    <Spinner
+        android:id="@+id/language_spn"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:contentDescription="@string/choose_language"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/window_lay" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

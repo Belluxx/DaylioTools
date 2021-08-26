@@ -3,4 +3,5 @@
     <string name="choose_csv_file">Choose CSV file</string>
     <string name="show_moving_average">Show moving average</string>
     <string name="moving_average_window">Moving average window</string>
+    <string name="choose_language">Choose language</string>
 </resources>
