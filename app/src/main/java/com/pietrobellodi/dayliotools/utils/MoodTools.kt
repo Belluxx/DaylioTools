@@ -42,6 +42,7 @@ class MoodTools(private val ctx: Context, private val fm: FragmentManager, priva
         "german" to mutableMapOf( // German custom moods
         )
     )
+    private var customMoodsQueue = arrayListOf<String>()
 
     private lateinit var dates: Array<String>
     private lateinit var moods: Array<Float>
@@ -92,8 +93,10 @@ class MoodTools(private val ctx: Context, private val fm: FragmentManager, priva
     }
 
     private fun askNewCustomMood(language: String, mood: String) {
+        if (mood in customMoodsQueue) return // Do not ask if already in queue
         val dialog = NewMoodDialogFragment(language, mood, customMoods)
         dialog.show(fm, "NewMoodDialog")
+        customMoodsQueue.add(mood)
     }
 
     private fun readTextFile(uri: Uri): List<String> =

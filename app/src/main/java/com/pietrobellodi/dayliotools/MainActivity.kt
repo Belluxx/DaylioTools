@@ -18,7 +18,6 @@ import com.pietrobellodi.dayliotools.utils.MoodTools
 import kotlinx.android.synthetic.main.activity_main.*
 
 // TODO Save custom moods
-// TODO Avoid redefinition of custom moods
 // TODO Allow management of custom moods
 // TODO Reload graph after custom moods are saved
 
