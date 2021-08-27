@@ -9,6 +9,7 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.SeekBar
 import android.widget.Toast
@@ -45,6 +46,12 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         initVars()
         initWidgets()
+        loadPrefs()
+    }
+
+    private fun loadPrefs() {
+        val prefs = getPreferences(Context.MODE_PRIVATE)
+        language_spn.setSelection(prefs.getInt("selectedLanguage", 0))
     }
 
     private fun initVars() {
@@ -92,15 +99,25 @@ class MainActivity : AppCompatActivity() {
 
         })
 
-        choose_btn.setOnClickListener {
-            chooseFile()
-        }
-
         ArrayAdapter.createFromResource(this, R.array.languages_array, android.R.layout.simple_spinner_item)
             .also { adapter ->
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 language_spn.adapter = adapter
             }
+
+        language_spn.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
+                val prefs = getPreferences(Context.MODE_PRIVATE)
+                prefs.edit().putInt("selectedLanguage", position).apply()
+            }
+
+            override fun onNothingSelected(p0: AdapterView<*>?) {}
+        }
+
+        choose_btn.setOnClickListener {
+            if (language_spn.selectedItemPosition == 0) toast("Please choose a language")
+            else chooseFile()
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, dataIntent: Intent?) {
@@ -109,7 +126,7 @@ class MainActivity : AppCompatActivity() {
             val uri = dataIntent?.data
             if (uri != null) {
                 lastUri = uri
-                mt.readCsv(uri, mt.LANGUAGES[language_spn.selectedItemPosition])
+                mt.readCsv(uri, mt.LANGUAGES[language_spn.selectedItemPosition-1])
                 if (mt.customMoodsQueue.isNotEmpty()) { // If the user was asked to define new custom moods
                     // Ask the user to reload the data
                     val builder = AlertDialog.Builder(this)
@@ -159,7 +176,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun reloadChart(uri: Uri) {
         lastUri = uri
-        mt.readCsv(uri, mt.LANGUAGES[language_spn.selectedItemPosition])
+        mt.readCsv(uri, mt.LANGUAGES[language_spn.selectedItemPosition-1])
         val results = mt.getResults()
         moods = results.first
         dates = results.second
@@ -220,7 +237,7 @@ class MainActivity : AppCompatActivity() {
             chart.xAxis.textColor = textColor
 
             chart.invalidate()
-            chart.setVisibleXRangeMinimum(70f)
+            chart.setVisibleXRangeMinimum(100f)
             chart.setVisibleXRangeMaximum(7f)
 
             avg_swt.isEnabled = true

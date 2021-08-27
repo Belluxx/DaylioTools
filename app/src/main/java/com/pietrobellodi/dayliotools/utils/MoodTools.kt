@@ -131,7 +131,8 @@ class MoodTools(private val activity: Activity, private val fm: FragmentManager,
             val builder = AlertDialog.Builder(activity)
             val inflater = requireActivity().layoutInflater
             val view = inflater.inflate(R.layout.new_mood_dialog_view, null)
-            view.body_tv.text = "The mood \"$mood\" is not recognized, please choose a value between 0-10 to be associated with that mood"
+            view.body_tv.text = "The mood \"$mood\" is not recognized, please choose a value for that mood:\n\n0: Terrible mood\n10: Great mood"
+            view.mood_tv.text = mood
             view.mood_value_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekbar: SeekBar?, value: Int, p2: Boolean) {
                     view.mood_value_tv.text = value.toString()
@@ -145,7 +146,7 @@ class MoodTools(private val activity: Activity, private val fm: FragmentManager,
             builder
                 .setTitle("Define custom mood")
                 .setView(view)
-                .setPositiveButton("Create mood") { dialog, id ->
+                .setPositiveButton("Create mood") { _, _ ->
                     val value = view.mood_value_sb.progress
                     customMoods[language]!![mood] = value
                     customMoodsQueue.remove(mood)

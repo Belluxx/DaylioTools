@@ -12,6 +12,16 @@
         android:padding="8dp"
         android:text="Dialog body" />
 
+    <TextView
+        android:id="@+id/mood_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Mood string"
+        android:textStyle="bold"
+        android:layout_gravity="center_horizontal"
+        android:textSize="18sp"
+        android:alpha="0.6"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
