@@ -8,7 +8,9 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
 import android.widget.ArrayAdapter
+import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.github.mikephil.charting.components.XAxis
@@ -20,7 +22,6 @@ import com.pietrobellodi.dayliotools.utils.MoodTools
 import kotlinx.android.synthetic.main.activity_main.*
 
 // TODO Allow management (delete/edit) of custom moods
-// TODO Re-implement moving-average
 
 class MainActivity : AppCompatActivity() {
 
@@ -31,10 +32,13 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var moods: Array<Float>
     private lateinit var dates: Array<String>
+    private lateinit var lastUri: Uri
 
     private var textColor = -1
     private var mainLineColor = -1
     private var accentLineColor = -1
+    private var avgRender = false
+    private var avgWindow = 3
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,8 +57,40 @@ class MainActivity : AppCompatActivity() {
     private fun initWidgets() {
         setupChart()
 
-        window_sb.isEnabled = false
+        avgRender = avg_swt.isChecked
         avg_swt.isEnabled = false
+
+        if (avg_swt.isChecked) window_lay.visibility = View.VISIBLE
+        else window_lay.visibility = View.GONE
+
+        avg_swt.setOnCheckedChangeListener { _, isChecked ->
+            if (::moods.isInitialized) {
+                if (isChecked) {
+                    window_lay.visibility = View.VISIBLE
+                    avgRender = true
+                    if (moods.isNotEmpty()) reloadChart(lastUri)
+                } else {
+                    window_lay.visibility = View.GONE
+                    avgRender = false
+                    if (moods.isNotEmpty()) reloadChart(lastUri)
+                }
+            }
+        }
+
+        window_sb.progress = avgWindow - 3
+        window_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (::moods.isInitialized) {
+                    avgWindow = progress + 3
+                    if (moods.isNotEmpty()) reloadChart(lastUri)
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+
+        })
 
         choose_btn.setOnClickListener {
             chooseFile()
@@ -72,6 +108,7 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == PICK_CSV_CODE && resultCode == Activity.RESULT_OK) {
             val uri = dataIntent?.data
             if (uri != null) {
+                lastUri = uri
                 mt.readCsv(uri, mt.LANGUAGES[language_spn.selectedItemPosition])
                 if (mt.customMoodsQueue.isNotEmpty()) { // If the user was asked to define new custom moods
                     // Ask the user to reload the data
@@ -102,10 +139,18 @@ class MainActivity : AppCompatActivity() {
                 for ((i, mood) in moods.withIndex()) {
                     moodEntries[i] = Entry(i.toFloat(), mood)
                 }
-                loadChartData(moodEntries.toList())
 
-                window_sb.isEnabled = true
-                avg_swt.isEnabled = true
+                // Create moving average entries list
+                val moodMA = moods
+                    .toList().windowed(avgWindow, 1) { it.average() }
+                    .map { it.toFloat() }
+                val maEntries = Array(moodMA.size) { Entry(0f, 0f) }
+                for ((i, ma) in moodMA.withIndex()) {
+                    maEntries[i] = Entry(i.toFloat(), ma)
+                }
+
+                // Load chart data
+                loadChartData(moodEntries.toList(), maEntries.toList())
             } else {
                 toast("No file selected")
             }
@@ -113,6 +158,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun reloadChart(uri: Uri) {
+        lastUri = uri
         mt.readCsv(uri, mt.LANGUAGES[language_spn.selectedItemPosition])
         val results = mt.getResults()
         moods = results.first
@@ -123,18 +169,26 @@ class MainActivity : AppCompatActivity() {
         for ((i, mood) in moods.withIndex()) {
             moodEntries[i] = Entry(i.toFloat(), mood)
         }
-        loadChartData(moodEntries.toList())
 
-        window_sb.isEnabled = true
-        avg_swt.isEnabled = true
+        // Create moving average entries list
+        val moodMA = moods
+            .toList().windowed(avgWindow, 1) { it.average() }
+            .map { it.toFloat() }
+        val maEntries = Array(moodMA.size) { Entry(0f, 0f) }
+        for ((i, ma) in moodMA.withIndex()) {
+            maEntries[i] = Entry(i.toFloat(), ma)
+        }
+
+        // Load chart data
+        loadChartData(moodEntries.toList(), maEntries.toList())
     }
 
-    private fun loadChartData(moodEntries: List<Entry>) {
+    private fun loadChartData(moodEntries: List<Entry>, maEntries: List<Entry>) {
         if (moodEntries.isNotEmpty()) {
             // Create mood dataset
-            val dataset = LineDataSet(moodEntries, "Mood")
-            with(dataset) {
-                color = accentLineColor
+            val moodDataset = LineDataSet(moodEntries, "Mood")
+            with(moodDataset) {
+                color = if (avgRender) mainLineColor else accentLineColor
                 lineWidth = 0.8f
                 mode = LineDataSet.Mode.CUBIC_BEZIER
 
@@ -143,8 +197,22 @@ class MainActivity : AppCompatActivity() {
                 setDrawCircles(false)
             }
 
+            // Create moving average dataset
+            val maDataset = LineDataSet(maEntries, "Moving average $avgWindow days")
+            with(maDataset) {
+                color = accentLineColor
+                lineWidth = 2f
+                mode = LineDataSet.Mode.CUBIC_BEZIER
+
+                setDrawValues(false)
+                setDrawHighlightIndicators(false)
+                setDrawCircles(false)
+            }
+
+
             // Setup the chart
-            chart.data = LineData(dataset)
+            if (avgRender) chart.data = LineData(listOf(moodDataset, maDataset))
+            else chart.data = LineData(moodDataset)
 
             chart.xAxis.position = XAxis.XAxisPosition.BOTTOM
             chart.xAxis.setDrawGridLines(false)
@@ -154,6 +222,8 @@ class MainActivity : AppCompatActivity() {
             chart.invalidate()
             chart.setVisibleXRangeMinimum(70f)
             chart.setVisibleXRangeMaximum(7f)
+
+            avg_swt.isEnabled = true
         } else {
             toast("No data to create graph")
         }
