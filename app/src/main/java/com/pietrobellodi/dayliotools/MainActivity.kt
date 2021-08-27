@@ -99,7 +99,11 @@ class MainActivity : AppCompatActivity() {
 
         })
 
-        ArrayAdapter.createFromResource(this, R.array.languages_array, android.R.layout.simple_spinner_item)
+        ArrayAdapter.createFromResource(
+            this,
+            R.array.languages_array,
+            android.R.layout.simple_spinner_item
+        )
             .also { adapter ->
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 language_spn.adapter = adapter
@@ -126,7 +130,7 @@ class MainActivity : AppCompatActivity() {
             val uri = dataIntent?.data
             if (uri != null) {
                 lastUri = uri
-                mt.readCsv(uri, mt.LANGUAGES[language_spn.selectedItemPosition-1])
+                mt.readCsv(uri, mt.LANGUAGES[language_spn.selectedItemPosition - 1])
                 if (mt.customMoodsQueue.isNotEmpty()) { // If the user was asked to define new custom moods
                     // Ask the user to reload the data
                     val builder = AlertDialog.Builder(this)
@@ -176,7 +180,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun reloadChart(uri: Uri) {
         lastUri = uri
-        mt.readCsv(uri, mt.LANGUAGES[language_spn.selectedItemPosition-1])
+        mt.readCsv(uri, mt.LANGUAGES[language_spn.selectedItemPosition - 1])
         val results = mt.getResults()
         moods = results.first
         dates = results.second

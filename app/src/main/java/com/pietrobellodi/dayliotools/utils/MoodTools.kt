@@ -16,7 +16,11 @@ import com.pietrobellodi.dayliotools.R
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.new_mood_dialog_view.view.*
 
-class MoodTools(private val activity: Activity, private val fm: FragmentManager, private val cr: ContentResolver) {
+class MoodTools(
+    private val activity: Activity,
+    private val fm: FragmentManager,
+    private val cr: ContentResolver
+) {
 
     val LANGUAGES = arrayOf("english", "italian", "german")
     private val MOOD_MAPS = mapOf(
@@ -124,14 +128,20 @@ class MoodTools(private val activity: Activity, private val fm: FragmentManager,
     private fun readTextFile(uri: Uri): List<String> =
         cr.openInputStream(uri)?.bufferedReader()?.useLines { it.toList() }!!
 
-    class NewMoodDialogFragment(private val language: String, private val mood: String, private val customMoods: Map<String, MutableMap<String, Int>>, private val customMoodsQueue: ArrayList<String>) : DialogFragment() {
+    class NewMoodDialogFragment(
+        private val language: String,
+        private val mood: String,
+        private val customMoods: Map<String, MutableMap<String, Int>>,
+        private val customMoodsQueue: ArrayList<String>
+    ) : DialogFragment() {
 
         @SuppressLint("InflateParams")
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             val builder = AlertDialog.Builder(activity)
             val inflater = requireActivity().layoutInflater
             val view = inflater.inflate(R.layout.new_mood_dialog_view, null)
-            view.body_tv.text = "The mood \"$mood\" is not recognized, please choose a value for that mood:\n\n0: Terrible mood\n10: Great mood"
+            view.body_tv.text =
+                "The mood \"$mood\" is not recognized, please choose a value for that mood:\n\n0: Terrible mood\n10: Great mood"
             view.mood_tv.text = mood
             view.mood_value_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekbar: SeekBar?, value: Int, p2: Boolean) {
