@@ -19,8 +19,7 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.pietrobellodi.dayliotools.utils.MoodTools
 import kotlinx.android.synthetic.main.activity_main.*
 
-// TODO Save custom moods
-// TODO Allow management of custom moods
+// TODO Allow management (delete/edit) of custom moods
 
 class MainActivity : AppCompatActivity() {
 
@@ -39,7 +38,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         initVars()
         initWidgets()
     }
@@ -47,6 +45,7 @@ class MainActivity : AppCompatActivity() {
     private fun initVars() {
         LANGUAGES = resources.getStringArray(R.array.languages_array)
         mt = MoodTools(this, supportFragmentManager, contentResolver)
+        mt.loadCustomMoods()
         setupColors()
     }
 
@@ -75,17 +74,23 @@ class MainActivity : AppCompatActivity() {
                 mt.readCsv(uri, mt.LANGUAGES[language_spn.selectedItemPosition])
                 if (mt.customMoodsQueue.isNotEmpty()) { // If the user was asked to define new custom moods
                     // Ask the user to reload the data
-                    val alertDialog = AlertDialog.Builder(this)
+                    val builder = AlertDialog.Builder(this)
 
-                    alertDialog.apply {
+                    builder.apply {
                         setTitle("Reload data")
                         setMessage("You just added new custom moods, would you like to reload the chart to see the updated data?")
                         setPositiveButton("Yes") { _, _ ->
                             reloadChart(uri)
+                            mt.saveCustomMoods()
                         }
                         setNegativeButton("No") { _, _ ->
+                            mt.saveCustomMoods()
                         }
-                    }.create().show()
+                    }
+
+                    val dialog = builder.create()
+                    dialog.setCancelable(false)
+                    dialog.show()
                 }
                 val results = mt.getResults()
                 moods = results.first

@@ -1,6 +1,7 @@
 package com.pietrobellodi.dayliotools.utils
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.ContentResolver
@@ -10,11 +11,12 @@ import android.os.Bundle
 import android.widget.SeekBar
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
+import com.google.gson.Gson
 import com.pietrobellodi.dayliotools.R
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.new_mood_dialog_view.view.*
 
-class MoodTools(private val ctx: Context, private val fm: FragmentManager, private val cr: ContentResolver) {
+class MoodTools(private val activity: Activity, private val fm: FragmentManager, private val cr: ContentResolver) {
 
     val LANGUAGES = arrayOf("english", "italian", "german")
     private val MOOD_MAPS = mapOf(
@@ -79,6 +81,18 @@ class MoodTools(private val ctx: Context, private val fm: FragmentManager, priva
 
     fun getResults(): Pair<Array<Float>, Array<String>> {
         return Pair(moods, dates)
+    }
+
+    fun saveCustomMoods() {
+        val prefs = activity.getPreferences(Context.MODE_PRIVATE)
+        prefs.edit().putString("customMoodMap", Gson().toJson(customMoodMaps)).apply()
+    }
+
+    fun loadCustomMoods() {
+        val prefs = activity.getPreferences(Context.MODE_PRIVATE)
+        val data = prefs.getString("customMoodMap", "")
+        if (data == "") return
+        customMoodMaps = Gson().fromJson(data, customMoodMaps.javaClass)
     }
 
     private fun convertMoods(moods: Array<String>, language: String): Array<Float> {
