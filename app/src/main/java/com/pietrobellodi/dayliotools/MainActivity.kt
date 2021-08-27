@@ -1,10 +1,12 @@
 package com.pietrobellodi.dayliotools
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Toast
@@ -19,7 +21,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 // TODO Save custom moods
 // TODO Allow management of custom moods
-// TODO Reload graph after custom moods are saved
 
 class MainActivity : AppCompatActivity() {
 
@@ -72,16 +73,30 @@ class MainActivity : AppCompatActivity() {
             val uri = dataIntent?.data
             if (uri != null) {
                 mt.readCsv(uri, mt.LANGUAGES[language_spn.selectedItemPosition])
+                if (mt.customMoodsQueue.isNotEmpty()) { // If the user was asked to define new custom moods
+                    // Ask the user to reload the data
+                    val alertDialog = AlertDialog.Builder(this)
+
+                    alertDialog.apply {
+                        setTitle("Reload data")
+                        setMessage("You just added new custom moods, would you like to reload the chart to see the updated data?")
+                        setPositiveButton("Yes") { _, _ ->
+                            reloadChart(uri)
+                        }
+                        setNegativeButton("No") { _, _ ->
+                        }
+                    }.create().show()
+                }
                 val results = mt.getResults()
                 moods = results.first
                 dates = results.second
 
                 // Create mood entries list
-                val moodsArray = Array(moods.size) { Entry(0f, 0f) }
+                val moodEntries = Array(moods.size) { Entry(0f, 0f) }
                 for ((i, mood) in moods.withIndex()) {
-                    moodsArray[i] = Entry(i.toFloat(), mood)
+                    moodEntries[i] = Entry(i.toFloat(), mood)
                 }
-                loadChartData(moodsArray.toList())
+                loadChartData(moodEntries.toList())
 
                 window_sb.isEnabled = true
                 avg_swt.isEnabled = true
@@ -91,10 +106,27 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadChartData(entries: List<Entry>) {
-        if (entries.isNotEmpty()) {
+    private fun reloadChart(uri: Uri) {
+        mt.readCsv(uri, mt.LANGUAGES[language_spn.selectedItemPosition])
+        val results = mt.getResults()
+        moods = results.first
+        dates = results.second
+
+        // Create mood entries list
+        val moodEntries = Array(moods.size) { Entry(0f, 0f) }
+        for ((i, mood) in moods.withIndex()) {
+            moodEntries[i] = Entry(i.toFloat(), mood)
+        }
+        loadChartData(moodEntries.toList())
+
+        window_sb.isEnabled = true
+        avg_swt.isEnabled = true
+    }
+
+    private fun loadChartData(moodEntries: List<Entry>) {
+        if (moodEntries.isNotEmpty()) {
             // Create mood dataset
-            val dataset = LineDataSet(entries, "Mood")
+            val dataset = LineDataSet(moodEntries, "Mood")
             with(dataset) {
                 color = accentLineColor
                 lineWidth = 0.8f

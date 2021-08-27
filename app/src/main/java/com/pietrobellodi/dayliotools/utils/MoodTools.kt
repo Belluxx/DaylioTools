@@ -1,11 +1,18 @@
 package com.pietrobellodi.dayliotools.utils
 
+import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.app.Dialog
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
+import android.os.Bundle
+import android.widget.SeekBar
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
-import com.pietrobellodi.dayliotools.fragments.NewMoodDialogFragment
+import com.pietrobellodi.dayliotools.R
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.new_mood_dialog_view.view.*
 
 class MoodTools(private val ctx: Context, private val fm: FragmentManager, private val cr: ContentResolver) {
 
@@ -34,7 +41,7 @@ class MoodTools(private val ctx: Context, private val fm: FragmentManager, priva
         )
     )
 
-    private var customMoods = mapOf(
+    private var customMoodMaps = mapOf(
         "english" to mutableMapOf<String, Int>( // English custom moods
         ),
         "italian" to mutableMapOf( // Italian custom moods
@@ -42,7 +49,7 @@ class MoodTools(private val ctx: Context, private val fm: FragmentManager, priva
         "german" to mutableMapOf( // German custom moods
         )
     )
-    private var customMoodsQueue = arrayListOf<String>()
+    var customMoodsQueue = arrayListOf<String>()
 
     private lateinit var dates: Array<String>
     private lateinit var moods: Array<Float>
@@ -76,7 +83,7 @@ class MoodTools(private val ctx: Context, private val fm: FragmentManager, priva
 
     private fun convertMoods(moods: Array<String>, language: String): Array<Float> {
         val moodMap = MOOD_MAPS[language]!!
-        val customMoodMap = customMoods[language]!!
+        val customMoodMap = customMoodMaps[language]!!
 
         return moods.mapNotNull {
             if (moodMap.containsKey(it)) {
@@ -94,11 +101,42 @@ class MoodTools(private val ctx: Context, private val fm: FragmentManager, priva
 
     private fun askNewCustomMood(language: String, mood: String) {
         if (mood in customMoodsQueue) return // Do not ask if already in queue
-        val dialog = NewMoodDialogFragment(language, mood, customMoods)
+        val dialog = NewMoodDialogFragment(language, mood, customMoodMaps, customMoodsQueue)
+        dialog.isCancelable = false
         dialog.show(fm, "NewMoodDialog")
         customMoodsQueue.add(mood)
     }
 
     private fun readTextFile(uri: Uri): List<String> =
         cr.openInputStream(uri)?.bufferedReader()?.useLines { it.toList() }!!
+
+    class NewMoodDialogFragment(private val language: String, private val mood: String, private val customMoods: Map<String, MutableMap<String, Int>>, private val customMoodsQueue: ArrayList<String>) : DialogFragment() {
+
+        @SuppressLint("InflateParams")
+        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+            val builder = AlertDialog.Builder(activity)
+            val inflater = requireActivity().layoutInflater
+            val view = inflater.inflate(R.layout.new_mood_dialog_view, null)
+            view.body_tv.text = "The mood \"$mood\" is not recognized, please choose a value between 0-10 to be associated with that mood"
+            view.mood_value_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekbar: SeekBar?, value: Int, p2: Boolean) {
+                    view.mood_value_tv.text = value.toString()
+                }
+
+                override fun onStartTrackingTouch(seekbar: SeekBar?) {}
+
+                override fun onStopTrackingTouch(seekbar: SeekBar?) {}
+
+            })
+            builder
+                .setTitle("Define custom mood")
+                .setView(view)
+                .setPositiveButton("Create mood") { dialog, id ->
+                    val value = view.mood_value_sb.progress
+                    customMoods[language]!![mood] = value
+                    customMoodsQueue.remove(mood)
+                }
+            return builder.create()
+        }
+    }
 }
