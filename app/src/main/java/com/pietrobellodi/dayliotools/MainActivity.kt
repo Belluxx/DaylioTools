@@ -22,15 +22,12 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.pietrobellodi.dayliotools.utils.MoodTools
 import kotlinx.android.synthetic.main.activity_main.*
 
-// TODO Allow management (delete/edit) of custom moods
-
 class MainActivity : AppCompatActivity() {
 
     private val PICK_CSV_CODE = 10
 
-    private lateinit var LANGUAGES: Array<String>
+    private lateinit var languagesSpinnerOptions: Array<String>
     private lateinit var mt: MoodTools
-
     private lateinit var moods: Array<Float>
     private lateinit var dates: Array<String>
     private lateinit var lastUri: Uri
@@ -44,26 +41,43 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        initVars()
-        initWidgets()
+
+        initAll()
         loadPrefs()
     }
 
-    private fun loadPrefs() {
-        val prefs = getPreferences(Context.MODE_PRIVATE)
-        language_spn.setSelection(prefs.getInt("selectedLanguage", 0))
-    }
-
-    private fun initVars() {
-        LANGUAGES = resources.getStringArray(R.array.languages_array)
+    private fun initAll() {
+        // Init variables
+        languagesSpinnerOptions = resources.getStringArray(R.array.languages_array)
         mt = MoodTools(this, supportFragmentManager, contentResolver)
         mt.loadCustomMoods()
-        setupColors()
-    }
 
-    private fun initWidgets() {
-        setupChart()
+        // Init colors
+        if (isDarkModeOn()) {
+            textColor = Color.parseColor("#FFFFFF")
+            mainLineColor = Color.parseColor("#555555")
+            accentLineColor = Color.parseColor("#FFAA00")
+        } else {
+            textColor = Color.parseColor("#000000")
+            mainLineColor = Color.parseColor("#AAAAAA")
+            accentLineColor = Color.parseColor("#FFAA00")
+        }
 
+        // Setup chart
+        with(chart) {
+            legend.isEnabled = true
+            legend.textColor = textColor
+            legend.textSize = 12f
+
+            axisRight.isEnabled = false
+            axisLeft.textColor = textColor
+            axisLeft.setDrawGridLines(false)
+
+            description.isEnabled = false
+            isScaleYEnabled = false
+        }
+
+        // Init widgets
         avgRender = avg_swt.isChecked
         avg_swt.isEnabled = false
 
@@ -124,6 +138,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun loadPrefs() {
+        val prefs = getPreferences(Context.MODE_PRIVATE)
+        language_spn.setSelection(prefs.getInt("selectedLanguage", 0))
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, dataIntent: Intent?) {
         super.onActivityResult(requestCode, resultCode, dataIntent)
         if (requestCode == PICK_CSV_CODE && resultCode == Activity.RESULT_OK) {
@@ -134,7 +153,6 @@ class MainActivity : AppCompatActivity() {
                 if (mt.customMoodsQueue.isNotEmpty()) { // If the user was asked to define new custom moods
                     // Ask the user to reload the data
                     val builder = AlertDialog.Builder(this)
-
                     builder.apply {
                         setTitle("Reload data")
                         setMessage("You just added new custom moods, would you like to reload the chart to see the updated data?")
@@ -146,11 +164,12 @@ class MainActivity : AppCompatActivity() {
                             mt.saveCustomMoods()
                         }
                     }
-
                     val dialog = builder.create()
                     dialog.setCancelable(false)
                     dialog.show()
                 }
+
+                // Get chart data
                 val results = mt.getResults()
                 moods = results.first
                 dates = results.second
@@ -230,16 +249,13 @@ class MainActivity : AppCompatActivity() {
                 setDrawCircles(false)
             }
 
-
-            // Setup the chart
+            // Tweak the chart
             if (avgRender) chart.data = LineData(listOf(moodDataset, maDataset))
             else chart.data = LineData(moodDataset)
-
             chart.xAxis.position = XAxis.XAxisPosition.BOTTOM
             chart.xAxis.setDrawGridLines(false)
             chart.xAxis.valueFormatter = IndexAxisValueFormatter(dates)
             chart.xAxis.textColor = textColor
-
             chart.invalidate()
             chart.setVisibleXRangeMinimum(7f)
             chart.setVisibleXRangeMaximum(100f)
@@ -247,33 +263,6 @@ class MainActivity : AppCompatActivity() {
             avg_swt.isEnabled = true
         } else {
             toast("No data to create graph")
-        }
-    }
-
-    private fun setupColors() {
-        if (isDarkModeOn()) {
-            textColor = Color.parseColor("#FFFFFF")
-            mainLineColor = Color.parseColor("#555555")
-            accentLineColor = Color.parseColor("#FFAA00")
-        } else {
-            textColor = Color.parseColor("#000000")
-            mainLineColor = Color.parseColor("#AAAAAA")
-            accentLineColor = Color.parseColor("#FFAA00")
-        }
-    }
-
-    private fun setupChart() {
-        with(chart) {
-            legend.isEnabled = true
-            legend.textColor = textColor
-            legend.textSize = 12f
-
-            axisRight.isEnabled = false
-            axisLeft.textColor = textColor
-            axisLeft.setDrawGridLines(false)
-
-            description.isEnabled = false
-            isScaleYEnabled = false
         }
     }
 

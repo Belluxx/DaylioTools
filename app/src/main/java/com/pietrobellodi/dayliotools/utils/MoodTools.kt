@@ -24,21 +24,21 @@ class MoodTools(
 
     val LANGUAGES = arrayOf("english", "italian", "german")
     private val MOOD_MAPS = mapOf(
-        "english" to mapOf( // English map
+        "english" to mapOf( // English default moods
             "awful" to 2,
             "bad" to 4,
             "meh" to 6,
             "good" to 8,
             "rad" to 10
         ),
-        "italian" to mapOf( // Italian map
+        "italian" to mapOf( // Italian default moods
             "terribile" to 2,
             "male" to 4,
             "così così" to 6,
             "buono" to 8,
             "ottimo" to 10
         ),
-        "german" to mapOf( // German map
+        "german" to mapOf( // German default moods
             "Einfach scheiße" to 2,
             "Schlecht" to 4,
             "Ok" to 6,
@@ -66,7 +66,7 @@ class MoodTools(
         dates = Array(size) { "[null_date]" }
         val moodsRaw = Array(size) { "[null_mood]" }
 
-        // Extract data from file text
+        // Extract data from CSV
         var i: Int = -1
         rawEntries.forEach {
             if (i != -1) { // Skip first line (labels)
@@ -79,7 +79,7 @@ class MoodTools(
         moodsRaw.reverse()
         dates.reverse()
 
-        // Convert moods
+        // Convert moods from string to number
         moods = convertMoods(moodsRaw, language)
     }
 
@@ -128,7 +128,7 @@ class MoodTools(
     private fun readTextFile(uri: Uri): List<String> =
         cr.openInputStream(uri)?.bufferedReader()?.useLines { it.toList() }!!
 
-    class NewMoodDialogFragment(
+    private class NewMoodDialogFragment(
         private val language: String,
         private val mood: String,
         private val customMoods: Map<String, MutableMap<String, Int>>,
