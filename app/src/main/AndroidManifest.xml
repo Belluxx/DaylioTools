@@ -12,7 +12,8 @@
         android:theme="@style/Theme.DaylioTools"
         tools:ignore="AllowBackup">
         <activity android:name=".MainActivity"
-            tools:ignore="AllowBackup">
+            tools:ignore="AllowBackup"
+            android:exported="true">
             <intent-filter tools:ignore="AllowBackup">
                 <action android:name="android.intent.action.MAIN" />
 
