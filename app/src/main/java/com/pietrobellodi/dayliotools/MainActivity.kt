@@ -241,8 +241,8 @@ class MainActivity : AppCompatActivity() {
             chart.xAxis.textColor = textColor
 
             chart.invalidate()
-            chart.setVisibleXRangeMinimum(100f)
-            chart.setVisibleXRangeMaximum(7f)
+            chart.setVisibleXRangeMinimum(7f)
+            chart.setVisibleXRangeMaximum(100f)
 
             avg_swt.isEnabled = true
         } else {
