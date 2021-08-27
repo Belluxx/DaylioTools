@@ -20,6 +20,7 @@ import com.pietrobellodi.dayliotools.utils.MoodTools
 import kotlinx.android.synthetic.main.activity_main.*
 
 // TODO Allow management (delete/edit) of custom moods
+// TODO Re-implement moving-average
 
 class MainActivity : AppCompatActivity() {
 
