@@ -18,14 +18,6 @@ Now you're ready to **use DaylioTools**
 3) Pick the exported file
 4) Enjoy
 
-## Limitations
-As of now there are only two languages available:  
-* English
-* Italian
-* German
-
-Also, only the 5 default moods are available.
-
 ## Screenshots
 <div>
 <img src="https://github.com/Belluxx/DaylioTools/raw/main/screenshots/dark.png" width="300"/>
