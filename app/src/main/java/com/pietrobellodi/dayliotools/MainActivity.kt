@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Setup chart
-        with(chart) {
+        with(mood_chart) {
             legend.isEnabled = true
             legend.textColor = textColor
             legend.textSize = 12f
@@ -250,15 +250,15 @@ class MainActivity : AppCompatActivity() {
             }
 
             // Tweak the chart
-            if (avgRender) chart.data = LineData(listOf(moodDataset, maDataset))
-            else chart.data = LineData(moodDataset)
-            chart.xAxis.position = XAxis.XAxisPosition.BOTTOM
-            chart.xAxis.setDrawGridLines(false)
-            chart.xAxis.valueFormatter = IndexAxisValueFormatter(dates)
-            chart.xAxis.textColor = textColor
-            chart.invalidate()
-            chart.setVisibleXRangeMinimum(7f)
-            chart.setVisibleXRangeMaximum(100f)
+            if (avgRender) mood_chart.data = LineData(listOf(moodDataset, maDataset))
+            else mood_chart.data = LineData(moodDataset)
+            mood_chart.xAxis.position = XAxis.XAxisPosition.BOTTOM
+            mood_chart.xAxis.setDrawGridLines(false)
+            mood_chart.xAxis.valueFormatter = IndexAxisValueFormatter(dates)
+            mood_chart.xAxis.textColor = textColor
+            mood_chart.invalidate()
+            mood_chart.setVisibleXRangeMinimum(7f)
+            mood_chart.setVisibleXRangeMaximum(100f)
 
             avg_swt.isEnabled = true
         } else {
