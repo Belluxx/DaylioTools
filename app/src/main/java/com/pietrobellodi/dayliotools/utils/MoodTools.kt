@@ -128,7 +128,7 @@ class MoodTools(
     private fun readTextFile(uri: Uri): List<String> =
         cr.openInputStream(uri)?.bufferedReader()?.useLines { it.toList() }!!
 
-    private class NewMoodDialogFragment(
+    class NewMoodDialogFragment(
         private val language: String,
         private val mood: String,
         private val customMoods: Map<String, MutableMap<String, Int>>,
