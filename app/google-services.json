@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "617491590587",
+    "firebase_url": "https://products-version-data-default-rtdb.firebaseio.com",
+    "project_id": "products-version-data",
+    "storage_bucket": "products-version-data.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:617491590587:android:0082ca203dd2c91cd4689e",
+        "android_client_info": {
+          "package_name": "com.pietrobellodi.dayliotools"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "617491590587-9f4e1o7cm3vrd2ab14v0tci4tgj362a0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCr_LLDlfVyrxibRlV6EG8zw8IS8NoTxE4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "617491590587-9f4e1o7cm3vrd2ab14v0tci4tgj362a0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

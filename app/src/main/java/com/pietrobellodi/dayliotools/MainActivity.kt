@@ -19,15 +19,18 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import com.pietrobellodi.dayliotools.utils.FirebaseTools
 import com.pietrobellodi.dayliotools.utils.MoodTools
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
     private val PICK_CSV_CODE = 10
+    private val VERSION = 2
 
     private lateinit var languagesSpinnerOptions: Array<String>
     private lateinit var mt: MoodTools
+    private lateinit var ft: FirebaseTools
     private lateinit var moods: Array<Float>
     private lateinit var dates: Array<String>
     private lateinit var lastUri: Uri
@@ -51,6 +54,14 @@ class MainActivity : AppCompatActivity() {
         languagesSpinnerOptions = resources.getStringArray(R.array.languages_array)
         mt = MoodTools(this, supportFragmentManager, contentResolver)
         mt.loadCustomMoods()
+        ft = FirebaseTools(getPreferences(MODE_PRIVATE).getBoolean("firstLaunch", true), object : FirebaseTools.OnDataRetrievedListener {
+            override fun onRetrieved(versionCode: Int) {
+                if (versionCode > VERSION) {
+                    updateRequest()
+                }
+            }
+        })
+        getPreferences(MODE_PRIVATE).edit().putBoolean("firstLaunch", false).apply()
 
         // Init colors
         if (isDarkModeOn()) {
@@ -272,6 +283,11 @@ class MainActivity : AppCompatActivity() {
             type = "text/*"
         }
         startActivityForResult(intent, PICK_CSV_CODE)
+    }
+
+    private fun updateRequest() {
+        toast("Please update the app")
+        // TODO Update dialog
     }
 
     private fun toast(text: String) = Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
