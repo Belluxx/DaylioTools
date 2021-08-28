@@ -26,7 +26,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
 
     private val PICK_CSV_CODE = 10
-    private val VERSION = 2
+    private val VERSION = 3
 
     private lateinit var languagesSpinnerOptions: Array<String>
     private lateinit var mt: MoodTools
