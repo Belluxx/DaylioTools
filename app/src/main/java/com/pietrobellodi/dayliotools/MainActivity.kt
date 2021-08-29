@@ -162,11 +162,6 @@ class MainActivity : AppCompatActivity() {
             if (language_spn.selectedItemPosition == 0) toast("Please choose a language")
             else chooseFile()
         }
-
-        help_btn.setOnClickListener {
-            val intent = Intent(this, HelpActivity::class.java)
-            startActivity(intent)
-        }
     }
 
     private fun loadPrefs() {
