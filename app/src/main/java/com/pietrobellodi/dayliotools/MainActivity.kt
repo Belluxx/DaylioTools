@@ -169,75 +169,6 @@ class MainActivity : AppCompatActivity() {
         language_spn.setSelection(prefs.getInt("selectedLanguage", 0))
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, dataIntent: Intent?) {
-        super.onActivityResult(requestCode, resultCode, dataIntent)
-        if (requestCode == PICK_CSV_CODE && resultCode == Activity.RESULT_OK) {
-            val uri = dataIntent?.data
-            if (uri != null) {
-                lastUri = uri
-                mt.readCsv(uri, mt.LANGUAGES[language_spn.selectedItemPosition - 1])
-                if (mt.customMoodsQueue.isNotEmpty()) { // If the user was asked to define new custom moods
-                    // Ask the user to reload the data
-                    reloadDataRequest()
-                }
-
-                // Get chart data
-                val results = mt.getResults()
-                moods = results.first
-                dates = results.second
-
-                // Create mood entries list
-                val moodEntries = Array(moods.size) { Entry(0f, 0f) }
-                for ((i, mood) in moods.withIndex()) {
-                    moodEntries[i] = Entry(i.toFloat(), mood)
-                }
-
-                // Create mood moving average entries list
-                val moodMA = moods
-                    .toList().windowed(avgWindow, 1) { it.average() }
-                    .map { it.toFloat() }
-                val maEntries = Array(moodMA.size) { Entry(0f, 0f) }
-                for ((i, ma) in moodMA.withIndex()) {
-                    maEntries[i] = Entry(i.toFloat(), ma)
-                }
-
-                // Load chart data
-                loadChartData(moodEntries.toList(), maEntries.toList())
-            } else {
-                toast("No file selected")
-            }
-        }
-    }
-
-    private fun reloadChart() {
-        if (!::lastUri.isInitialized) {
-            toast("Cannot reload chart")
-            return
-        }
-        mt.readCsv(lastUri, mt.LANGUAGES[language_spn.selectedItemPosition - 1])
-        val results = mt.getResults()
-        moods = results.first
-        dates = results.second
-
-        // Create mood entries list
-        val moodEntries = Array(moods.size) { Entry(0f, 0f) }
-        for ((i, mood) in moods.withIndex()) {
-            moodEntries[i] = Entry(i.toFloat(), mood)
-        }
-
-        // Create moving average entries list
-        val moodMA = moods
-            .toList().windowed(avgWindow, 1) { it.average() }
-            .map { it.toFloat() }
-        val maEntries = Array(moodMA.size) { Entry(0f, 0f) }
-        for ((i, ma) in moodMA.withIndex()) {
-            maEntries[i] = Entry(i.toFloat(), ma)
-        }
-
-        // Load chart data
-        loadChartData(moodEntries.toList(), maEntries.toList())
-    }
-
     private fun loadChartData(moodEntries: List<Entry>, maEntries: List<Entry>) {
         if (moodEntries.isNotEmpty()) {
             // Create mood dataset
@@ -282,12 +213,81 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun reloadChart() {
+        if (!::lastUri.isInitialized) {
+            toast("Cannot reload chart")
+            return
+        }
+        mt.readCsv(lastUri, mt.LANGUAGES[language_spn.selectedItemPosition - 1])
+        val results = mt.getResults()
+        moods = results.first
+        dates = results.second
+
+        // Create mood entries list
+        val moodEntries = Array(moods.size) { Entry(0f, 0f) }
+        for ((i, mood) in moods.withIndex()) {
+            moodEntries[i] = Entry(i.toFloat(), mood)
+        }
+
+        // Create moving average entries list
+        val moodMA = moods
+            .toList().windowed(avgWindow, 1) { it.average() }
+            .map { it.toFloat() }
+        val maEntries = Array(moodMA.size) { Entry(0f, 0f) }
+        for ((i, ma) in moodMA.withIndex()) {
+            maEntries[i] = Entry(i.toFloat(), ma)
+        }
+
+        // Load chart data
+        loadChartData(moodEntries.toList(), maEntries.toList())
+    }
+
     private fun chooseFile() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "text/*"
         }
         startActivityForResult(intent, PICK_CSV_CODE)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, dataIntent: Intent?) {
+        super.onActivityResult(requestCode, resultCode, dataIntent)
+        if (requestCode == PICK_CSV_CODE && resultCode == Activity.RESULT_OK) {
+            val uri = dataIntent?.data
+            if (uri != null) {
+                lastUri = uri
+                mt.readCsv(uri, mt.LANGUAGES[language_spn.selectedItemPosition - 1])
+                if (mt.customMoodsQueue.isNotEmpty()) { // If the user was asked to define new custom moods
+                    // Ask the user to reload the data
+                    reloadDataRequest()
+                }
+
+                // Get chart data
+                val results = mt.getResults()
+                moods = results.first
+                dates = results.second
+
+                // Create mood entries list
+                val moodEntries = Array(moods.size) { Entry(0f, 0f) }
+                for ((i, mood) in moods.withIndex()) {
+                    moodEntries[i] = Entry(i.toFloat(), mood)
+                }
+
+                // Create mood moving average entries list
+                val moodMA = moods
+                    .toList().windowed(avgWindow, 1) { it.average() }
+                    .map { it.toFloat() }
+                val maEntries = Array(moodMA.size) { Entry(0f, 0f) }
+                for ((i, ma) in moodMA.withIndex()) {
+                    maEntries[i] = Entry(i.toFloat(), ma)
+                }
+
+                // Load chart data
+                loadChartData(moodEntries.toList(), maEntries.toList())
+            } else {
+                toast("No file selected")
+            }
+        }
     }
 
     private fun reloadDataRequest() {
