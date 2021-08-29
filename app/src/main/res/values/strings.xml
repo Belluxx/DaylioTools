@@ -7,4 +7,5 @@
     <string name="mood_chart">Mood chart</string>
     <string name="activities_chart">Activities chart</string>
     <string name="smooth_chart">Smooth chart</string>
+    <string name="help">Help</string>
 </resources>
