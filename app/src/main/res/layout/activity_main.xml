@@ -69,7 +69,7 @@
                 android:layout_height="48dp"
                 android:contentDescription="@string/choose_language" />
 
-            <LinearLayout
+            <!-- <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
                 android:background="#AAAAAA"
@@ -83,10 +83,10 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <com.github.mikephil.charting.charts.LineChart
+            <com.github.mikephil.charting.charts.BarChart
                 android:id="@+id/activities_chart"
                 android:layout_width="match_parent"
-                android:layout_height="300dp" />
+                android:layout_height="300dp" /> -->
 
         </LinearLayout>
     </ScrollView>
