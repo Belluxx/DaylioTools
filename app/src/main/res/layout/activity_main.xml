@@ -63,6 +63,14 @@
 
             </LinearLayout>
 
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/smooth_swt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:padding="8dp"
+                android:text="@string/smooth_chart" />
+
             <Spinner
                 android:id="@+id/language_spn"
                 android:layout_width="match_parent"

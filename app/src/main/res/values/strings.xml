@@ -6,4 +6,5 @@
     <string name="choose_language">Choose language</string>
     <string name="mood_chart">Mood chart</string>
     <string name="activities_chart">Activities chart</string>
+    <string name="smooth_chart">Smooth chart</string>
 </resources>

@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity() {
     private var accentLineColor = -1
     private var avgRender = false
     private var avgWindow = 3
+    private var smoothRender = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,15 +53,19 @@ class MainActivity : AppCompatActivity() {
     private fun initAll() {
         // Init variables
         languagesSpinnerOptions = resources.getStringArray(R.array.languages_array)
+        avgRender = avg_swt.isChecked
+        smoothRender = smooth_swt.isChecked
         mt = MoodTools(this, supportFragmentManager, contentResolver)
         mt.loadCustomMoods()
-        ft = FirebaseTools(getPreferences(MODE_PRIVATE).getBoolean("firstLaunch", true), object : FirebaseTools.OnDataRetrievedListener {
-            override fun onRetrieved(versionCode: Int, updateUrl: String) {
-                if (versionCode > VERSION) {
-                    updateRequest(updateUrl)
+        ft = FirebaseTools(
+            getPreferences(MODE_PRIVATE).getBoolean("firstLaunch", true),
+            object : FirebaseTools.OnDataRetrievedListener {
+                override fun onRetrieved(versionCode: Int, updateUrl: String) {
+                    if (versionCode > VERSION) {
+                        updateRequest(updateUrl)
+                    }
                 }
-            }
-        })
+            })
         getPreferences(MODE_PRIVATE).edit().putBoolean("firstLaunch", false).apply()
 
         // Init colors
@@ -89,24 +94,30 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Init widgets
-        avgRender = avg_swt.isChecked
         avg_swt.isEnabled = false
+        avg_swt.isChecked = false
+        smooth_swt.isEnabled = false
+        smooth_swt.isChecked = false
 
         if (avg_swt.isChecked) window_lay.visibility = View.VISIBLE
         else window_lay.visibility = View.GONE
-
         avg_swt.setOnCheckedChangeListener { _, isChecked ->
             if (::moods.isInitialized) {
                 if (isChecked) {
                     window_lay.visibility = View.VISIBLE
                     avgRender = true
-                    if (moods.isNotEmpty()) reloadChart(lastUri)
+                    if (moods.isNotEmpty()) reloadChart()
                 } else {
                     window_lay.visibility = View.GONE
                     avgRender = false
-                    if (moods.isNotEmpty()) reloadChart(lastUri)
+                    if (moods.isNotEmpty()) reloadChart()
                 }
             }
+        }
+
+        smooth_swt.setOnCheckedChangeListener { _, isChecked ->
+            smoothRender = isChecked
+            reloadChart()
         }
 
         window_sb.progress = avgWindow - 3
@@ -114,7 +125,7 @@ class MainActivity : AppCompatActivity() {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (::moods.isInitialized) {
                     avgWindow = progress + 3
-                    if (moods.isNotEmpty()) reloadChart(lastUri)
+                    if (moods.isNotEmpty()) reloadChart()
                 }
             }
 
@@ -133,14 +144,18 @@ class MainActivity : AppCompatActivity() {
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 language_spn.adapter = adapter
             }
-
         language_spn.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
+            override fun onItemSelected(
+                adapter: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                p3: Long
+            ) {
                 val prefs = getPreferences(Context.MODE_PRIVATE)
                 prefs.edit().putInt("selectedLanguage", position).apply()
             }
 
-            override fun onNothingSelected(p0: AdapterView<*>?) {}
+            override fun onNothingSelected(adapter: AdapterView<*>?) {}
         }
 
         choose_btn.setOnClickListener {
@@ -163,21 +178,7 @@ class MainActivity : AppCompatActivity() {
                 mt.readCsv(uri, mt.LANGUAGES[language_spn.selectedItemPosition - 1])
                 if (mt.customMoodsQueue.isNotEmpty()) { // If the user was asked to define new custom moods
                     // Ask the user to reload the data
-                    val builder = AlertDialog.Builder(this)
-                    builder.apply {
-                        setTitle("Reload data")
-                        setMessage("You just added new custom moods, would you like to reload the chart to see the updated data?")
-                        setPositiveButton("Yes") { _, _ ->
-                            reloadChart(uri)
-                            mt.saveCustomMoods()
-                        }
-                        setNegativeButton("No") { _, _ ->
-                            mt.saveCustomMoods()
-                        }
-                    }
-                    val dialog = builder.create()
-                    dialog.setCancelable(false)
-                    dialog.show()
+                    reloadDataRequest()
                 }
 
                 // Get chart data
@@ -191,7 +192,7 @@ class MainActivity : AppCompatActivity() {
                     moodEntries[i] = Entry(i.toFloat(), mood)
                 }
 
-                // Create moving average entries list
+                // Create mood moving average entries list
                 val moodMA = moods
                     .toList().windowed(avgWindow, 1) { it.average() }
                     .map { it.toFloat() }
@@ -208,9 +209,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun reloadChart(uri: Uri) {
-        lastUri = uri
-        mt.readCsv(uri, mt.LANGUAGES[language_spn.selectedItemPosition - 1])
+    private fun reloadChart() {
+        if (!::lastUri.isInitialized) {
+            toast("Cannot reload chart")
+            return
+        }
+        mt.readCsv(lastUri, mt.LANGUAGES[language_spn.selectedItemPosition - 1])
         val results = mt.getResults()
         moods = results.first
         dates = results.second
@@ -241,7 +245,7 @@ class MainActivity : AppCompatActivity() {
             with(moodDataset) {
                 color = if (avgRender) mainLineColor else accentLineColor
                 lineWidth = 0.8f
-                mode = LineDataSet.Mode.CUBIC_BEZIER
+                mode = if (smoothRender) LineDataSet.Mode.CUBIC_BEZIER else LineDataSet.Mode.LINEAR
 
                 setDrawValues(false)
                 setDrawHighlightIndicators(false)
@@ -253,7 +257,7 @@ class MainActivity : AppCompatActivity() {
             with(maDataset) {
                 color = accentLineColor
                 lineWidth = 2f
-                mode = LineDataSet.Mode.CUBIC_BEZIER
+                mode = if (smoothRender) LineDataSet.Mode.CUBIC_BEZIER else LineDataSet.Mode.LINEAR
 
                 setDrawValues(false)
                 setDrawHighlightIndicators(false)
@@ -272,6 +276,7 @@ class MainActivity : AppCompatActivity() {
             mood_chart.setVisibleXRangeMaximum(100f)
 
             avg_swt.isEnabled = true
+            smooth_swt.isEnabled = true
         } else {
             toast("No data to create graph")
         }
@@ -283,6 +288,24 @@ class MainActivity : AppCompatActivity() {
             type = "text/*"
         }
         startActivityForResult(intent, PICK_CSV_CODE)
+    }
+
+    private fun reloadDataRequest() {
+        val builder = AlertDialog.Builder(this)
+        builder.apply {
+            setTitle("Reload data")
+            setMessage("You just added new custom moods, would you like to reload the chart to see the updated data?")
+            setPositiveButton("Yes") { _, _ ->
+                reloadChart()
+                mt.saveCustomMoods()
+            }
+            setNegativeButton("No") { _, _ ->
+                mt.saveCustomMoods()
+            }
+        }
+        val dialog = builder.create()
+        dialog.setCancelable(false)
+        dialog.show()
     }
 
     private fun updateRequest(updateUrl: String) {
