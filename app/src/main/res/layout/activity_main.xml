@@ -20,17 +20,34 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/mood_chart"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/mood_chart"
                 android:layout_width="match_parent"
-                android:layout_height="300dp" />
+                android:layout_height="300dp"
+                android:layout_marginBottom="12dp"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/language_spn"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/choose_language">
+
+                <AutoCompleteTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    tools:ignore="LabelFor,TextContrastCheck"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/smooth_swt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:padding="8dp"
+                android:text="@string/smooth_chart" />
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/avg_swt"
@@ -54,28 +71,19 @@
                     android:layout_weight="1"
                     android:text="@string/moving_average_window" />
 
-                <SeekBar
+                <com.google.android.material.slider.Slider
                     android:id="@+id/window_sb"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:max="17" />
+                    android:contentDescription="@string/moving_average_window"
+                    android:stepSize="1"
+                    android:value="7"
+                    android:valueFrom="3"
+                    android:valueTo="14"
+                    tools:ignore="DuplicateSpeakableTextCheck" />
 
             </LinearLayout>
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/smooth_swt"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checked="false"
-                android:padding="8dp"
-                android:text="@string/smooth_chart" />
-
-            <Spinner
-                android:id="@+id/language_spn"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:contentDescription="@string/choose_language" />
 
             <!-- <LinearLayout
                 android:layout_width="match_parent"
@@ -99,7 +107,7 @@
         </LinearLayout>
     </ScrollView>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/choose_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

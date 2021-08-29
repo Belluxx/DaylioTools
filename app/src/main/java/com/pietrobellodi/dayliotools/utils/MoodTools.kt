@@ -22,7 +22,7 @@ class MoodTools(
     private val cr: ContentResolver
 ) {
 
-    val LANGUAGES = arrayOf("english", "italian", "german")
+    val LANGUAGES = arrayOf("english", "italian", "german", "any")
     private val MOOD_MAPS = mapOf(
         "english" to mapOf( // English default moods
             "awful" to 2,
@@ -44,6 +44,8 @@ class MoodTools(
             "Ok" to 6,
             "Gut" to 8,
             "Super" to 10
+        ),
+        "any" to mapOf( // Map for creation of custom language
         )
     )
 
@@ -53,6 +55,8 @@ class MoodTools(
         "italian" to mutableMapOf( // Italian custom moods
         ),
         "german" to mutableMapOf( // German custom moods
+        ),
+        "any" to mutableMapOf( // Map for creation of custom language
         )
     )
     var customMoodsQueue = arrayListOf<String>()

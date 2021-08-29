@@ -11,7 +11,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.SeekBar
+import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.github.mikephil.charting.components.XAxis
@@ -19,6 +19,7 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import com.google.android.material.slider.Slider
 import com.pietrobellodi.dayliotools.utils.FirebaseTools
 import com.pietrobellodi.dayliotools.utils.MoodTools
 import kotlinx.android.synthetic.main.activity_main.*
@@ -34,12 +35,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var moods: Array<Float>
     private lateinit var dates: Array<String>
     private lateinit var lastUri: Uri
+    private lateinit var language_selector: AutoCompleteTextView
 
     private var textColor = -1
     private var mainLineColor = -1
     private var accentLineColor = -1
     private var avgRender = false
-    private var avgWindow = 3
+    private var avgWindow = -1
     private var smoothRender = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,6 +56,7 @@ class MainActivity : AppCompatActivity() {
         // Init variables
         languagesSpinnerOptions = resources.getStringArray(R.array.languages_array)
         avgRender = avg_swt.isChecked
+        avgWindow = window_sb.value.toInt()
         smoothRender = smooth_swt.isChecked
         mt = MoodTools(this, supportFragmentManager, contentResolver)
         mt.loadCustomMoods()
@@ -81,7 +84,7 @@ class MainActivity : AppCompatActivity() {
 
         // Setup chart
         with(mood_chart) {
-            legend.isEnabled = true
+            legend.isEnabled = false
             legend.textColor = textColor
             legend.textSize = 12f
 
@@ -98,6 +101,7 @@ class MainActivity : AppCompatActivity() {
         avg_swt.isChecked = false
         smooth_swt.isEnabled = false
         smooth_swt.isChecked = false
+        language_selector = language_spn.editText as AutoCompleteTextView
 
         if (avg_swt.isChecked) window_lay.visibility = View.VISIBLE
         else window_lay.visibility = View.GONE
@@ -120,53 +124,35 @@ class MainActivity : AppCompatActivity() {
             reloadChart()
         }
 
-        window_sb.progress = avgWindow - 3
-        window_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+        window_sb.value = avgWindow.toFloat()
+        window_sb.addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
+            override fun onStartTrackingTouch(slider: Slider) {
                 if (::moods.isInitialized) {
-                    avgWindow = progress + 3
+                    avgWindow = slider.value.toInt()
                     if (moods.isNotEmpty()) reloadChart()
                 }
             }
 
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(slider: Slider) {}
 
         })
-
-        ArrayAdapter.createFromResource(
-            this,
-            R.array.languages_array,
-            android.R.layout.simple_spinner_item
-        )
-            .also { adapter ->
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                language_spn.adapter = adapter
+        window_sb.addOnChangeListener { slider, value, fromUser ->
+            if (::moods.isInitialized) {
+                avgWindow = value.toInt()
+                if (moods.isNotEmpty()) reloadChart()
             }
-        language_spn.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                adapter: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                p3: Long
-            ) {
-                val prefs = getPreferences(Context.MODE_PRIVATE)
-                prefs.edit().putInt("selectedLanguage", position).apply()
-            }
-
-            override fun onNothingSelected(adapter: AdapterView<*>?) {}
         }
 
+        language_selector.setAdapter(ArrayAdapter(this, R.layout.list_item, languagesSpinnerOptions))
+
         choose_btn.setOnClickListener {
-            if (language_spn.selectedItemPosition == 0) toast("Please choose a language")
+            if (getSelectedLanguagePosition() < 0) toast("Please choose a language")
             else chooseFile()
         }
     }
 
     private fun loadPrefs() {
         val prefs = getPreferences(Context.MODE_PRIVATE)
-        language_spn.setSelection(prefs.getInt("selectedLanguage", 0))
     }
 
     private fun loadChartData(moodEntries: List<Entry>, maEntries: List<Entry>) {
@@ -218,7 +204,7 @@ class MainActivity : AppCompatActivity() {
             toast("Cannot reload chart")
             return
         }
-        mt.readCsv(lastUri, mt.LANGUAGES[language_spn.selectedItemPosition - 1])
+        mt.readCsv(lastUri, mt.LANGUAGES[getSelectedLanguagePosition()])
         val results = mt.getResults()
         moods = results.first
         dates = results.second
@@ -256,7 +242,7 @@ class MainActivity : AppCompatActivity() {
             val uri = dataIntent?.data
             if (uri != null) {
                 lastUri = uri
-                mt.readCsv(uri, mt.LANGUAGES[language_spn.selectedItemPosition - 1])
+                mt.readCsv(uri, mt.LANGUAGES[getSelectedLanguagePosition()])
                 if (mt.customMoodsQueue.isNotEmpty()) { // If the user was asked to define new custom moods
                     // Ask the user to reload the data
                     reloadDataRequest()
@@ -323,6 +309,14 @@ class MainActivity : AppCompatActivity() {
         val dialog = builder.create()
         dialog.setCancelable(false)
         dialog.show()
+    }
+
+    private fun getSelectedLanguagePosition(): Int {
+        return languagesSpinnerOptions.indexOf(language_selector.text.toString())
+    }
+
+    private fun setSelectedLanguagePosition(position: Int) {
+        language_selector.setText(language_selector.adapter.getItem(position).toString(), false)
     }
 
     private fun toast(text: String) = Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
