@@ -55,9 +55,9 @@ class MainActivity : AppCompatActivity() {
         mt = MoodTools(this, supportFragmentManager, contentResolver)
         mt.loadCustomMoods()
         ft = FirebaseTools(getPreferences(MODE_PRIVATE).getBoolean("firstLaunch", true), object : FirebaseTools.OnDataRetrievedListener {
-            override fun onRetrieved(versionCode: Int) {
+            override fun onRetrieved(versionCode: Int, updateUrl: String) {
                 if (versionCode > VERSION) {
-                    updateRequest()
+                    updateRequest(updateUrl)
                 }
             }
         })
@@ -285,9 +285,21 @@ class MainActivity : AppCompatActivity() {
         startActivityForResult(intent, PICK_CSV_CODE)
     }
 
-    private fun updateRequest() {
-        toast("Please update the app")
-        // TODO Update dialog
+    private fun updateRequest(updateUrl: String) {
+        val builder = AlertDialog.Builder(this)
+        builder.apply {
+            setTitle("Update the app")
+            setMessage("A new version of DaylioTools is available, would you like to download it?")
+            setPositiveButton("Download") { _, _ ->
+                val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(updateUrl))
+                startActivity(browserIntent)
+            }
+            setNegativeButton("Ignore") { _, _ ->
+            }
+        }
+        val dialog = builder.create()
+        dialog.setCancelable(false)
+        dialog.show()
     }
 
     private fun toast(text: String) = Toast.makeText(this, text, Toast.LENGTH_SHORT).show()

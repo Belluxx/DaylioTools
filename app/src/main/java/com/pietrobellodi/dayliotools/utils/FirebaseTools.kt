@@ -10,6 +10,7 @@ class FirebaseTools(private val addUser: Boolean, private val listener: OnDataRe
 
     var usersCount = -1
     var versionCode = -1
+    var updateUrl = ""
 
     init {
         val database = FirebaseDatabase.getInstance()
@@ -19,7 +20,8 @@ class FirebaseTools(private val addUser: Boolean, private val listener: OnDataRe
             override fun onDataChange(data: DataSnapshot) {
                 usersCount = data.child("launchs").getValue(Int::class.java)!!
                 versionCode = data.child("version").getValue(Int::class.java)!!
-                listener.onRetrieved(versionCode)
+                updateUrl = data.child("update_url").getValue(String::class.java)!!
+                listener.onRetrieved(versionCode, updateUrl)
 
                 if (addUser) {
                     ref.child("launchs").setValue(usersCount + 1)
@@ -33,7 +35,7 @@ class FirebaseTools(private val addUser: Boolean, private val listener: OnDataRe
     }
 
     interface OnDataRetrievedListener {
-        fun onRetrieved(versionCode: Int)
+        fun onRetrieved(versionCode: Int, updateUrl: String)
     }
 
 }
