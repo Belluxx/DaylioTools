@@ -2,27 +2,23 @@ package com.pietrobellodi.dayliotools.utils
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.AlertDialog
-import android.app.Dialog
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
-import android.os.Bundle
-import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.FragmentManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
+import com.pietrobellodi.dayliotools.MainActivity
 import com.pietrobellodi.dayliotools.R
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.new_mood_dialog_view.view.*
 
 class MoodTools(
     private val activity: Activity,
-    private val fm: FragmentManager,
     private val cr: ContentResolver
 ) {
 
     private var moodsMap = mutableMapOf<String, Float>()
-    var moodDialogsQueue = arrayListOf<String>()
+    private var moodDialogsQueue = arrayListOf<String>()
 
     private lateinit var dates: Array<String>
     private lateinit var moods: Array<Float>
@@ -83,9 +79,8 @@ class MoodTools(
 
     private fun askToDefineMood(mood: String) {
         if (mood in moodDialogsQueue) return // Do not ask if already in queue
-        val dialog = DefineMoodDialog(mood, moodsMap, moodDialogsQueue)
-        dialog.isCancelable = false
-        dialog.show(fm, "DefineMoodDialog")
+        val dialog = DefineMoodDialog(activity, mood, moodsMap, moodDialogsQueue)
+        dialog.show()
         moodDialogsQueue.add(mood)
     }
 
@@ -93,28 +88,33 @@ class MoodTools(
         cr.openInputStream(uri)?.bufferedReader()?.useLines { it.toList() }!!
 
     class DefineMoodDialog(
+        private val activity: Activity,
         private val mood: String,
         private val moodsMap: MutableMap<String, Float>,
         private val customMoodsQueue: ArrayList<String>
-    ) : DialogFragment() {
+    ) {
 
         @SuppressLint("InflateParams")
-        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-            val builder = AlertDialog.Builder(activity)
-            val inflater = requireActivity().layoutInflater
+        fun show() {
+            val inflater = activity.layoutInflater
             val view = inflater.inflate(R.layout.new_mood_dialog_view, null)
             view.body_tv.text =
                 "The mood \"$mood\" is not recognized, please choose a value for that mood:\n\n1: Awful mood\n5: Rad mood"
             view.mood_tv.text = mood
-            builder
-                .setTitle("Define new mood")
+            MaterialAlertDialogBuilder(activity)
                 .setView(view)
+                .setTitle("Define new mood")
+                .setMessage("You just added new custom moods, would you like to reload the chart to see the updated data?")
                 .setPositiveButton("Save") { _, _ ->
                     val value = view.mood_value_sb.value
                     moodsMap[mood] = value
                     customMoodsQueue.remove(mood)
+                    if (customMoodsQueue.isEmpty()) {
+                        (activity as MainActivity).reloadDataRequest()
+                    }
                 }
-            return builder.create()
+                .setCancelable(false)
+                .show()
         }
     }
 }

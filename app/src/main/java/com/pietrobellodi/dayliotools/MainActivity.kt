@@ -1,7 +1,6 @@
 package com.pietrobellodi.dayliotools
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
@@ -17,6 +16,7 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
 import com.pietrobellodi.dayliotools.utils.FirebaseTools
 import com.pietrobellodi.dayliotools.utils.MoodTools
@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity() {
         avgRender = avg_swt.isChecked
         avgWindow = window_sb.value.toInt()
         smoothRender = smooth_swt.isChecked
-        mt = MoodTools(this, supportFragmentManager, contentResolver)
+        mt = MoodTools(this, contentResolver)
         ft = FirebaseTools(
             getPreferences(MODE_PRIVATE).getBoolean("firstLaunch", true),
             object : FirebaseTools.OnDataRetrievedListener {
@@ -244,10 +244,6 @@ class MainActivity : AppCompatActivity() {
             if (uri != null) {
                 lastUri = uri
                 mt.readCsv(uri)
-                if (mt.moodDialogsQueue.isNotEmpty()) { // If the user was asked to define new custom moods
-                    // Ask the user to reload the data
-                    reloadDataRequest()
-                }
 
                 // Get chart data
                 val results = mt.getResults()
@@ -277,39 +273,31 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun reloadDataRequest() {
-        val builder = AlertDialog.Builder(this)
-        builder.apply {
-            setTitle("Reload data")
-            setMessage("You just added new custom moods, would you like to reload the chart to see the updated data?")
-            setPositiveButton("Yes") { _, _ ->
+    fun reloadDataRequest() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Reload data")
+            .setMessage("You just added new custom moods, would you like to reload the chart to see the updated data?")
+            .setPositiveButton("Reload") { _, _ ->
                 reloadChart()
                 mt.saveMoods()
             }
-            setNegativeButton("No") { _, _ ->
+            .setNegativeButton("Ignore") { _, _ ->
                 mt.saveMoods()
             }
-        }
-        val dialog = builder.create()
-        dialog.setCancelable(false)
-        dialog.show()
+            .show()
     }
 
     private fun updateRequest(updateUrl: String) {
-        val builder = AlertDialog.Builder(this)
-        builder.apply {
-            setTitle("Update the app")
-            setMessage("A new version of DaylioTools is available, would you like to download it?")
-            setPositiveButton("Download") { _, _ ->
+        MaterialAlertDialogBuilder(this)
+            .setTitle("New version available")
+            .setMessage("An update of DaylioTools is available, would you like to download the update APK?")
+            .setPositiveButton("Download APK") { _, _ ->
                 val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(updateUrl))
                 startActivity(browserIntent)
             }
-            setNegativeButton("Ignore") { _, _ ->
+            .setNegativeButton("Ignore") { _, _ ->
             }
-        }
-        val dialog = builder.create()
-        dialog.setCancelable(false)
-        dialog.show()
+            .show()
     }
 
     private fun toast(text: String) = Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
