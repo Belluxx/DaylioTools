@@ -110,7 +110,7 @@ class MoodTools(
                     moodsMap[mood] = value
                     customMoodsQueue.remove(mood)
                     if (customMoodsQueue.isEmpty()) {
-                        (activity as MainActivity).reloadDataRequest()
+                        (activity as MainActivity).applyNewMoods()
                     }
                 }
                 .setCancelable(false)

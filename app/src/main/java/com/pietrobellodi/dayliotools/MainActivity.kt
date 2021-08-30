@@ -273,18 +273,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun reloadDataRequest() {
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Reload data")
-            .setMessage("You just added new custom moods, would you like to reload the chart to see the updated data?")
-            .setPositiveButton("Reload") { _, _ ->
-                reloadChart()
-                mt.saveMoods()
-            }
-            .setNegativeButton("Ignore") { _, _ ->
-                mt.saveMoods()
-            }
-            .show()
+    fun applyNewMoods() {
+        reloadChart()
+        mt.saveMoods()
     }
 
     private fun updateRequest(updateUrl: String) {
