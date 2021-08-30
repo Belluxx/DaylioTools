@@ -46,6 +46,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/delete"
                 android:textColor="#FF5555"
+                app:rippleColor="#FF5555"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
 
         </LinearLayout>
