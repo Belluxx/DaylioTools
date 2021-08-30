@@ -86,10 +86,20 @@ class MainActivity : AppCompatActivity() {
             axisRight.isEnabled = false
             axisLeft.textColor = textColor
             axisLeft.setDrawGridLines(false)
-            axisLeft.setDrawLabels(true)
+            axisLeft.setDrawLabels(false)
             axisLeft.axisMinimum = 0f
-            axisLeft.addLimitLine(LimitLine(MAXIMUM_MOOD, "Rad"))
-            axisLeft.addLimitLine(LimitLine(MINIMUM_MOOD, "Awful"))
+            val upperLimit = LimitLine(MAXIMUM_MOOD, "Rad").apply {
+                lineColor = Color.parseColor("#00BB00")
+                lineWidth = 1f
+                enableDashedLine(20f, 16f, 0f)
+            }
+            val lowerLimit = LimitLine(MINIMUM_MOOD, "Awful").apply {
+                lineColor = Color.parseColor("#FF0000")
+                lineWidth = 1f
+                enableDashedLine(20f, 16f, 0f)
+            }
+            axisLeft.addLimitLine(upperLimit)
+            axisLeft.addLimitLine(lowerLimit)
 
             description.isEnabled = false
             isScaleYEnabled = false
@@ -234,7 +244,7 @@ class MainActivity : AppCompatActivity() {
             if (uri != null) {
                 lastUri = uri
                 mt.readCsv(uri)
-                if (mt.customMoodsQueue.isNotEmpty()) { // If the user was asked to define new custom moods
+                if (mt.moodDialogsQueue.isNotEmpty()) { // If the user was asked to define new custom moods
                     // Ask the user to reload the data
                     reloadDataRequest()
                 }
@@ -274,10 +284,10 @@ class MainActivity : AppCompatActivity() {
             setMessage("You just added new custom moods, would you like to reload the chart to see the updated data?")
             setPositiveButton("Yes") { _, _ ->
                 reloadChart()
-                mt.saveCustomMoods()
+                mt.saveMoods()
             }
             setNegativeButton("No") { _, _ ->
-                mt.saveCustomMoods()
+                mt.saveMoods()
             }
         }
         val dialog = builder.create()

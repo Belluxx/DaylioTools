@@ -22,13 +22,13 @@ class MoodTools(
 ) {
 
     private var moodsMap = mutableMapOf<String, Float>()
-    var customMoodsQueue = arrayListOf<String>()
+    var moodDialogsQueue = arrayListOf<String>()
 
     private lateinit var dates: Array<String>
     private lateinit var moods: Array<Float>
 
     init {
-        loadCustomMoods()
+        loadMoods()
     }
 
     fun readCsv(uri: Uri) {
@@ -58,12 +58,12 @@ class MoodTools(
         return Pair(moods, dates)
     }
 
-    fun saveCustomMoods() {
+    fun saveMoods() {
         val prefs = activity.getPreferences(Context.MODE_PRIVATE)
         prefs.edit().putString("moodsMap", Gson().toJson(moodsMap)).apply()
     }
 
-    private fun loadCustomMoods() {
+    private fun loadMoods() {
         val prefs = activity.getPreferences(Context.MODE_PRIVATE)
         val data = prefs.getString("moodsMap", "")
         if (data == "") return
@@ -75,24 +75,24 @@ class MoodTools(
             if (moodsMap.containsKey(it)) {
                 return@mapNotNull moodsMap[it]!!.toFloat()
             } else { // Mood not contained in moodMap
-                if (!customMoodsQueue.contains(it)) askNewCustomMood(it)
+                if (!moodDialogsQueue.contains(it)) askToDefineMood(it)
                 return@mapNotNull null
             }
         }.toTypedArray()
     }
 
-    private fun askNewCustomMood(mood: String) {
-        if (mood in customMoodsQueue) return // Do not ask if already in queue
-        val dialog = NewMoodDialogFragment(mood, moodsMap, customMoodsQueue)
+    private fun askToDefineMood(mood: String) {
+        if (mood in moodDialogsQueue) return // Do not ask if already in queue
+        val dialog = DefineMoodDialog(mood, moodsMap, moodDialogsQueue)
         dialog.isCancelable = false
         dialog.show(fm, "DefineMoodDialog")
-        customMoodsQueue.add(mood)
+        moodDialogsQueue.add(mood)
     }
 
     private fun readTextFile(uri: Uri): List<String> =
         cr.openInputStream(uri)?.bufferedReader()?.useLines { it.toList() }!!
 
-    class NewMoodDialogFragment(
+    class DefineMoodDialog(
         private val mood: String,
         private val moodsMap: MutableMap<String, Float>,
         private val customMoodsQueue: ArrayList<String>
@@ -107,9 +107,9 @@ class MoodTools(
                 "The mood \"$mood\" is not recognized, please choose a value for that mood:\n\n1: Awful mood\n5: Rad mood"
             view.mood_tv.text = mood
             builder
-                .setTitle("Define custom mood")
+                .setTitle("Define new mood")
                 .setView(view)
-                .setPositiveButton("Create mood") { _, _ ->
+                .setPositiveButton("Save") { _, _ ->
                     val value = view.mood_value_sb.value
                     moodsMap[mood] = value
                     customMoodsQueue.remove(mood)
