@@ -98,13 +98,11 @@ class MoodTools(
         fun show() {
             val inflater = activity.layoutInflater
             val view = inflater.inflate(R.layout.new_mood_dialog_view, null)
-            view.body_tv.text =
-                "The mood \"$mood\" is not recognized, please choose a value for that mood:\n\n1: Awful mood\n5: Rad mood"
             view.mood_tv.text = mood
             MaterialAlertDialogBuilder(activity)
                 .setView(view)
                 .setTitle("Define new mood")
-                .setMessage("You just added new custom moods, would you like to reload the chart to see the updated data?")
+                .setMessage("The mood \"$mood\" is not recognized, please choose a value for that mood:")
                 .setPositiveButton("Save") { _, _ ->
                     val value = view.mood_value_sb.value
                     moodsMap[mood] = value

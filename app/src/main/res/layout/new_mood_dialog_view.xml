@@ -7,13 +7,6 @@
     android:padding="12dp">
 
     <TextView
-        android:id="@+id/body_tv"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="8dp"
-        android:text="Dialog body" />
-
-    <TextView
         android:id="@+id/mood_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
