@@ -50,13 +50,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initAll() {
+        // Check if first launch
+        val firstLaunch = getPreferences(MODE_PRIVATE).getBoolean("firstLaunch", true)
+
         // Init variables
         avgRender = avg_swt.isChecked
         avgWindow = window_sb.value.toInt()
         smoothRender = smooth_swt.isChecked
         mt = MoodTools(this, contentResolver)
         ft = FirebaseTools(
-            getPreferences(MODE_PRIVATE).getBoolean("firstLaunch", true),
+            firstLaunch,
             object : FirebaseTools.OnDataRetrievedListener {
                 override fun onRetrieved(versionCode: Int, updateUrl: String) {
                     if (versionCode > VERSION) {
@@ -65,6 +68,12 @@ class MainActivity : AppCompatActivity() {
                 }
             })
         getPreferences(MODE_PRIVATE).edit().putBoolean("firstLaunch", false).apply()
+
+        // Show tutorial if first launch
+        if (firstLaunch) {
+            val intent = Intent(this, HelpActivity::class.java)
+            startActivity(intent)
+        }
 
         // Init colors
         if (isDarkModeOn()) {
