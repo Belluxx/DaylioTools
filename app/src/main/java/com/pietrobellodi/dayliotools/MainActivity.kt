@@ -9,11 +9,9 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.github.mikephil.charting.components.LimitLine
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
@@ -28,14 +26,14 @@ class MainActivity : AppCompatActivity() {
 
     private val PICK_CSV_CODE = 10
     private val VERSION = 3
+    private val MINIMUM_MOOD = 1f
+    private val MAXIMUM_MOOD = 5f
 
-    private lateinit var languagesSpinnerOptions: Array<String>
     private lateinit var mt: MoodTools
     private lateinit var ft: FirebaseTools
     private lateinit var moods: Array<Float>
     private lateinit var dates: Array<String>
     private lateinit var lastUri: Uri
-    private lateinit var language_selector: AutoCompleteTextView
 
     private var textColor = -1
     private var mainLineColor = -1
@@ -49,17 +47,14 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         initAll()
-        loadPrefs()
     }
 
     private fun initAll() {
         // Init variables
-        languagesSpinnerOptions = resources.getStringArray(R.array.languages_array)
         avgRender = avg_swt.isChecked
         avgWindow = window_sb.value.toInt()
         smoothRender = smooth_swt.isChecked
         mt = MoodTools(this, supportFragmentManager, contentResolver)
-        mt.loadCustomMoods()
         ft = FirebaseTools(
             getPreferences(MODE_PRIVATE).getBoolean("firstLaunch", true),
             object : FirebaseTools.OnDataRetrievedListener {
@@ -91,6 +86,10 @@ class MainActivity : AppCompatActivity() {
             axisRight.isEnabled = false
             axisLeft.textColor = textColor
             axisLeft.setDrawGridLines(false)
+            axisLeft.setDrawLabels(true)
+            axisLeft.axisMinimum = 0f
+            axisLeft.addLimitLine(LimitLine(MAXIMUM_MOOD, "Rad"))
+            axisLeft.addLimitLine(LimitLine(MINIMUM_MOOD, "Awful"))
 
             description.isEnabled = false
             isScaleYEnabled = false
@@ -101,7 +100,6 @@ class MainActivity : AppCompatActivity() {
         avg_swt.isChecked = false
         smooth_swt.isEnabled = false
         smooth_swt.isChecked = false
-        language_selector = language_spn.editText as AutoCompleteTextView
 
         if (avg_swt.isChecked) window_lay.visibility = View.VISIBLE
         else window_lay.visibility = View.GONE
@@ -136,23 +134,16 @@ class MainActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(slider: Slider) {}
 
         })
-        window_sb.addOnChangeListener { slider, value, fromUser ->
+        window_sb.addOnChangeListener { _, value, _ ->
             if (::moods.isInitialized) {
                 avgWindow = value.toInt()
                 if (moods.isNotEmpty()) reloadChart()
             }
         }
 
-        language_selector.setAdapter(ArrayAdapter(this, R.layout.list_item, languagesSpinnerOptions))
-
         choose_btn.setOnClickListener {
-            if (getSelectedLanguagePosition() < 0) toast("Please choose a language")
-            else chooseFile()
+            chooseFile()
         }
-    }
-
-    private fun loadPrefs() {
-        val prefs = getPreferences(Context.MODE_PRIVATE)
     }
 
     private fun loadChartData(moodEntries: List<Entry>, maEntries: List<Entry>) {
@@ -204,7 +195,7 @@ class MainActivity : AppCompatActivity() {
             toast("Cannot reload chart")
             return
         }
-        mt.readCsv(lastUri, mt.LANGUAGES[getSelectedLanguagePosition()])
+        mt.readCsv(lastUri)
         val results = mt.getResults()
         moods = results.first
         dates = results.second
@@ -242,7 +233,7 @@ class MainActivity : AppCompatActivity() {
             val uri = dataIntent?.data
             if (uri != null) {
                 lastUri = uri
-                mt.readCsv(uri, mt.LANGUAGES[getSelectedLanguagePosition()])
+                mt.readCsv(uri)
                 if (mt.customMoodsQueue.isNotEmpty()) { // If the user was asked to define new custom moods
                     // Ask the user to reload the data
                     reloadDataRequest()
@@ -309,14 +300,6 @@ class MainActivity : AppCompatActivity() {
         val dialog = builder.create()
         dialog.setCancelable(false)
         dialog.show()
-    }
-
-    private fun getSelectedLanguagePosition(): Int {
-        return languagesSpinnerOptions.indexOf(language_selector.text.toString())
-    }
-
-    private fun setSelectedLanguagePosition(position: Int) {
-        language_selector.setText(language_selector.adapter.getItem(position).toString(), false)
     }
 
     private fun toast(text: String) = Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
