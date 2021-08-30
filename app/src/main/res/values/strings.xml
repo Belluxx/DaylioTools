@@ -1,10 +1,15 @@
 <resources>
     <string name="app_name">Daylio Tools</string>
 
+    <string name="shared_prefs">om.pietrobellodi.dayliotools.BASEPREFS</string>
+
     <string name="choose_csv_file">Choose CSV file</string>
     <string name="show_moving_average">Show moving average</string>
     <string name="moving_average_window">Moving average window</string>
     <string name="mood_chart">Mood chart</string>
     <string name="activities_chart">Activities chart</string>
     <string name="smooth_chart">Smooth chart</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="manage">Manage</string>
 </resources>

@@ -51,7 +51,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun initAll() {
         // Check if first launch
-        val firstLaunch = getPreferences(MODE_PRIVATE).getBoolean("firstLaunch", true)
+        val firstLaunch =
+            getSharedPreferences(getString(R.string.shared_prefs), Context.MODE_PRIVATE).getBoolean(
+                "firstLaunch",
+                true
+            )
 
         // Init variables
         avgRender = avg_swt.isChecked
@@ -67,12 +71,13 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             })
-        getPreferences(MODE_PRIVATE).edit().putBoolean("firstLaunch", false).apply()
+        getSharedPreferences(getString(R.string.shared_prefs), Context.MODE_PRIVATE).edit()
+            .putBoolean("firstLaunch", false).apply()
 
         // Show tutorial if first launch
         if (firstLaunch) {
-            val intent = Intent(this, HelpActivity::class.java)
-            startActivity(intent)
+            // val intent = Intent(this, HelpActivity::class.java)
+            // startActivity(intent)
         }
 
         // Init colors
@@ -162,6 +167,11 @@ class MainActivity : AppCompatActivity() {
 
         choose_btn.setOnClickListener {
             chooseFile()
+        }
+
+        manage_btn.setOnClickListener {
+            val intent = Intent(this, ManageMoodsActivity::class.java)
+            startActivity(intent)
         }
     }
 

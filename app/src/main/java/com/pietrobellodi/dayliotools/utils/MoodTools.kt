@@ -55,12 +55,18 @@ class MoodTools(
     }
 
     fun saveMoods() {
-        val prefs = activity.getPreferences(Context.MODE_PRIVATE)
+        val prefs = activity.getSharedPreferences(
+            activity.getString(R.string.shared_prefs),
+            Context.MODE_PRIVATE
+        )
         prefs.edit().putString("moodsMap", Gson().toJson(moodsMap)).apply()
     }
 
     private fun loadMoods() {
-        val prefs = activity.getPreferences(Context.MODE_PRIVATE)
+        val prefs = activity.getSharedPreferences(
+            activity.getString(R.string.shared_prefs),
+            Context.MODE_PRIVATE
+        )
         val data = prefs.getString("moodsMap", "")
         if (data == "") return
         moodsMap = Gson().fromJson(data, moodsMap.javaClass)
