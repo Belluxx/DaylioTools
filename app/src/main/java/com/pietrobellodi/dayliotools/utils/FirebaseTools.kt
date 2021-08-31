@@ -5,7 +5,12 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
-
+/**
+ * Provides useful tools to perform firebase tasks
+ *
+ * @param addUser specifies if the user just started using the app
+ * @param listener a listener for firebase events
+ */
 class FirebaseTools(private val addUser: Boolean, private val listener: OnDataRetrievedListener) {
 
     var usersCount = -1
@@ -34,6 +39,9 @@ class FirebaseTools(private val addUser: Boolean, private val listener: OnDataRe
         })
     }
 
+    /**
+     * Custom listener for firebase events
+     */
     interface OnDataRetrievedListener {
         fun onRetrieved(versionCode: Int, updateUrl: String)
     }

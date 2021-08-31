@@ -14,6 +14,14 @@ import com.google.gson.Gson
 import com.pietrobellodi.dayliotools.R
 import kotlinx.android.synthetic.main.new_mood_dialog_view.view.*
 
+/**
+ * Adapter for mood cards
+ *
+ * @param activity the context activity
+ * @param moodsCardsData list containing data about all moods that
+ * will be managed by this adapter
+ * @param moodsMap map that will be modified by the user
+ */
 class MoodCardAdapter(
     private val activity: Activity,
     private val moodsCardsData: ArrayList<MoodCardData>,
@@ -71,6 +79,11 @@ class MoodCardAdapter(
         return moodsCardsData.size
     }
 
+    /**
+     * Deletes a mood from the moods map and from the recyclerview
+     *
+     * @param mood the name of the mood that needs to be removed
+     */
     private fun deleteMood(mood: String) {
         val moodIndex = moodsMap.keys.indexOf(mood)
         moodsCardsData.remove(moodsCardsData[moodIndex])
@@ -84,6 +97,12 @@ class MoodCardAdapter(
         prefs.edit().putString("moodsMap", Gson().toJson(moodsMap)).apply()
     }
 
+    /**
+     * Changes the value of a mood
+     *
+     * @param mood the name of the mood that needs to be modified
+     * @param value the new value for the mood
+     */
     private fun editMood(mood: String, value: Float) {
         moodsMap[mood] = value
         val prefs = activity.getSharedPreferences(
@@ -93,6 +112,11 @@ class MoodCardAdapter(
         prefs.edit().putString("moodsMap", Gson().toJson(moodsMap)).apply()
     }
 
+    /**
+     * Holds all the widgets of the mood card
+     *
+     * @param view the root view
+     */
     class MoodCardHolder(view: View) : RecyclerView.ViewHolder(view) {
         val card: MaterialCardView = view.findViewById(R.id.mood_card)
         val name_tv: TextView = view.findViewById(R.id.mood_card_name_tv)

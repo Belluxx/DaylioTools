@@ -3,6 +3,11 @@ package com.pietrobellodi.dayliotools.utils
 import android.content.ContentResolver
 import android.net.Uri
 
+/**
+ * Provides useful tools to manage Daylio activities
+ *
+ * @param cr content resolver
+ */
 class ActivitiesTools(private val cr: ContentResolver) {
 
     private lateinit var dates: Array<String>
@@ -10,6 +15,11 @@ class ActivitiesTools(private val cr: ContentResolver) {
     private var activityTypes = arrayListOf<String>()
     private lateinit var activitiesCount: Array<Float>
 
+    /**
+     * Reads a Daylio CSV export and prepares data that is retrievable with getResults()
+     *
+     * @param uri the uri of the CSV file
+     */
     fun readCsv(uri: Uri) {
         val rawEntries = readTextFile(uri)
         val size = rawEntries.size - 1
@@ -37,6 +47,11 @@ class ActivitiesTools(private val cr: ContentResolver) {
         }
     }
 
+    /**
+     * Gets the results of the readCsv() method
+     *
+     * @return Returns a pair containing two arrays: activitiesCount as floats and activityTypes as strings
+     */
     fun getResults(): Pair<Array<Float>, Array<String>> {
         return Pair(activitiesCount, activityTypes.toTypedArray())
     }

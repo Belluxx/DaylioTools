@@ -12,6 +12,12 @@ import com.pietrobellodi.dayliotools.R
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.new_mood_dialog_view.view.*
 
+/**
+ * Provides useful tools to manage Daylio moods
+ *
+ * @param activity the context activity
+ * @param cr the content resolver
+ */
 class MoodTools(
     private val activity: Activity,
     private val cr: ContentResolver
@@ -27,6 +33,11 @@ class MoodTools(
         loadMoods()
     }
 
+    /**
+     * Reads a Daylio CSV export and prepares data that is retrievable with getResults()
+     *
+     * @param uri the uri of the CSV file
+     */
     fun readCsv(uri: Uri) {
         val rawEntries = readTextFile(uri)
         val size = rawEntries.size - 1
@@ -50,10 +61,19 @@ class MoodTools(
         moods = convertMoods(moodsRaw)
     }
 
+    /**
+     * Gets the results of the readCsv() method
+     *
+     * @return Returns a pair containing two arrays: moods as floats and dates as strings
+     */
     fun getResults(): Pair<Array<Float>, Array<String>> {
+        // TODO Implement as return directly in readCsv()
         return Pair(moods, dates)
     }
 
+    /**
+     * Saves the moods map into shared preferences
+     */
     fun saveMoods() {
         val prefs = activity.getSharedPreferences(
             activity.getString(R.string.shared_prefs),
@@ -62,6 +82,9 @@ class MoodTools(
         prefs.edit().putString("moodsMap", Gson().toJson(moodsMap)).apply()
     }
 
+    /**
+     * Loads the moods map from shared preferences
+     */
     fun loadMoods() {
         val prefs = activity.getSharedPreferences(
             activity.getString(R.string.shared_prefs),
@@ -72,7 +95,7 @@ class MoodTools(
         moodsMap = Gson().fromJson(data, moodsMap.javaClass)
     }
 
-    fun getSavedMoods(): MutableMap<String, Float> {
+    private fun getSavedMoods(): MutableMap<String, Float> {
         val prefs = activity.getSharedPreferences(
             activity.getString(R.string.shared_prefs),
             Context.MODE_PRIVATE
@@ -102,10 +125,25 @@ class MoodTools(
     private fun readTextFile(uri: Uri): List<String> =
         cr.openInputStream(uri)?.bufferedReader()?.useLines { it.toList() }!!
 
+    /**
+     * Checks if the moods map of the class is different from the
+     * one saved in shared preferences
+     */
     fun savedMoodsChanged(): Boolean {
         return moodsMap != getSavedMoods()
     }
 
+    /**
+     * Dialog that allows the user to define a new mood and assigning
+     * a value to it.
+     *
+     * @param activity the activity where the dialog will be shown
+     * @param mood the mood name
+     * @param moodsMap the moods map that needs to be updated with the
+     * new mood
+     * @param customMoodsQueue the queue of moods that still need to be
+     * defined
+     */
     class DefineMoodDialog(
         private val activity: Activity,
         private val mood: String,
@@ -113,6 +151,9 @@ class MoodTools(
         private val customMoodsQueue: ArrayList<String>
     ) {
 
+        /**
+         * Shows the dialog
+         */
         @SuppressLint("InflateParams")
         fun show() {
             val inflater = activity.layoutInflater
