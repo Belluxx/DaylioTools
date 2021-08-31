@@ -2,7 +2,7 @@
 An android app that visualizes and helps you to better understand [Daylio](https://play.google.com/store/apps/details?id=net.daylio) exported data.  
 Scroll to the bottom to see some screenshots.
 
-## [Download the pre-release](https://github.com/Belluxx/DaylioTools/releases/download/v1.0-beta2/DaylioTools.apk)
+## [Download the Beta](https://github.com/Belluxx/DaylioTools/releases/download/v1.0-beta2/DaylioTools.apk)
 
 ## How to use
 First of all you must **create a CSV table**  
