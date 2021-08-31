@@ -28,10 +28,9 @@ class ManageMoodsActivity : AppCompatActivity() {
             moodsData.add(MoodCardData(mood, value))
         }
 
-        moods_rv.adapter = MoodCardAdapter(moodsData)
+        moods_rv.adapter = MoodCardAdapter(this, moodsData, moodsMap)
         moods_rv.layoutManager = LinearLayoutManager(this)
         moods_rv.setHasFixedSize(true)
-        //moods_rv.adapter!!.notifyDataSetChanged()
     }
 
     private fun loadMoods() {

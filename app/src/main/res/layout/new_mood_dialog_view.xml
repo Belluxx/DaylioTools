@@ -14,6 +14,7 @@
         android:textStyle="bold"
         android:layout_gravity="center_horizontal"
         android:textSize="18sp"
+        android:textAllCaps="true"
         android:alpha="0.6"/>
 
     <LinearLayout

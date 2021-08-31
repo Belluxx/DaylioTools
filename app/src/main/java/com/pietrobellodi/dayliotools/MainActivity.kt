@@ -95,16 +95,21 @@ class MainActivity : AppCompatActivity() {
             axisLeft.textColor = textColor
             axisLeft.setDrawGridLines(false)
             axisLeft.setDrawLabels(false)
-            axisLeft.axisMinimum = 0f
+            axisLeft.axisMinimum = MINIMUM_MOOD - 0.5f
+            axisLeft.axisMaximum = MAXIMUM_MOOD + 0.5f
             val upperLimit = LimitLine(MAXIMUM_MOOD, "Rad").apply {
                 lineColor = Color.parseColor("#00BB00")
                 lineWidth = 1f
                 enableDashedLine(20f, 16f, 0f)
+                textColor = this@MainActivity.textColor
+                labelPosition = LimitLine.LimitLabelPosition.LEFT_BOTTOM
             }
             val lowerLimit = LimitLine(MINIMUM_MOOD, "Awful").apply {
                 lineColor = Color.parseColor("#FF0000")
                 lineWidth = 1f
                 enableDashedLine(20f, 16f, 0f)
+                textColor = this@MainActivity.textColor
+                labelPosition = LimitLine.LimitLabelPosition.LEFT_TOP
             }
             axisLeft.addLimitLine(upperLimit)
             axisLeft.addLimitLine(lowerLimit)
@@ -204,7 +209,7 @@ class MainActivity : AppCompatActivity() {
             mood_chart.xAxis.textColor = textColor
             mood_chart.invalidate()
             mood_chart.setVisibleXRangeMinimum(7f)
-            mood_chart.setVisibleXRangeMaximum(100f)
+            mood_chart.setVisibleXRangeMaximum(150f)
 
             avg_swt.isEnabled = true
             smooth_swt.isEnabled = true
@@ -302,6 +307,14 @@ class MainActivity : AppCompatActivity() {
             .setNegativeButton("Ignore") { _, _ ->
             }
             .show()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (mood_chart.data != null) {
+            mt.loadMoods()
+            reloadChart()
+        }
     }
 
     private fun toast(text: String) = Toast.makeText(this, text, Toast.LENGTH_SHORT).show()

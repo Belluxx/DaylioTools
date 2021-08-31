@@ -62,7 +62,7 @@ class MoodTools(
         prefs.edit().putString("moodsMap", Gson().toJson(moodsMap)).apply()
     }
 
-    private fun loadMoods() {
+    fun loadMoods() {
         val prefs = activity.getSharedPreferences(
             activity.getString(R.string.shared_prefs),
             Context.MODE_PRIVATE
