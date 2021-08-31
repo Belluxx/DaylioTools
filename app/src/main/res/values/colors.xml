@@ -4,13 +4,17 @@
     <color name="primaryLightColor">#3AC53F</color>
     <color name="secondaryColor">#FF5722</color>
     <color name="accentColor">#FFC107</color>
+    <color name="accentDarkColor">#FF8A65</color>
     <color name="backgroundColor">#FFFFFF</color>
     <color name="textColor">#000000</color>
+    <color name="statusBarColor">@color/primaryColor</color>
 
     <color name="primaryColor_dark">#4CAF50</color>
     <color name="primaryLightColor_dark">#8BC34A</color>
     <color name="secondaryColor_dark">#FF9800</color>
     <color name="accentColor_dark">#FFC107</color>
+    <color name="accentDarkColor_dark">#FF8A65</color>
     <color name="backgroundColor_dark">#000000</color>
     <color name="textColor_dark">#FFFFFF</color>
+    <color name="statusBarColor_dark">#000000</color>
 </resources>

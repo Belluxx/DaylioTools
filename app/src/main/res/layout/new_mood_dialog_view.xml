@@ -1,16 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="12dp">
-
-    <TextView
-        android:id="@+id/body_tv"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="8dp"
-        android:text="Dialog body" />
 
     <TextView
         android:id="@+id/mood_tv"
@@ -20,6 +14,7 @@
         android:textStyle="bold"
         android:layout_gravity="center_horizontal"
         android:textSize="18sp"
+        android:textAllCaps="true"
         android:alpha="0.6"/>
 
     <LinearLayout
@@ -29,20 +24,16 @@
         android:gravity="center"
         android:orientation="horizontal">
 
-        <SeekBar
+        <com.google.android.material.slider.Slider
             android:id="@+id/mood_value_sb"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="@integer/material_motion_duration_long_1"
-            android:max="10"
-            android:progress="5" />
-
-        <TextView
-            android:id="@+id/mood_value_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="5" />
+            android:contentDescription=""
+            android:stepSize="1"
+            android:value="3"
+            android:valueFrom="1"
+            android:valueTo="5" />
     </LinearLayout>
 
 </LinearLayout>
