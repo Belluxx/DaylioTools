@@ -2,9 +2,6 @@ package com.pietrobellodi.dayliotools.utils
 
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,11 +11,14 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
-import com.pietrobellodi.dayliotools.MainActivity
 import com.pietrobellodi.dayliotools.R
 import kotlinx.android.synthetic.main.new_mood_dialog_view.view.*
 
-class MoodCardAdapter(private val activity: Activity, private val moodsCardsData: ArrayList<MoodCardData>, private val moodsMap: MutableMap<String, Float>) :
+class MoodCardAdapter(
+    private val activity: Activity,
+    private val moodsCardsData: ArrayList<MoodCardData>,
+    private val moodsMap: MutableMap<String, Float>
+) :
     RecyclerView.Adapter<MoodCardAdapter.MoodCardHolder>() {
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -77,13 +77,19 @@ class MoodCardAdapter(private val activity: Activity, private val moodsCardsData
         notifyItemRemoved(moodIndex)
 
         moodsMap.remove(mood)
-        val prefs = activity.getSharedPreferences(activity.getString(R.string.shared_prefs), Context.MODE_PRIVATE)
+        val prefs = activity.getSharedPreferences(
+            activity.getString(R.string.shared_prefs),
+            Context.MODE_PRIVATE
+        )
         prefs.edit().putString("moodsMap", Gson().toJson(moodsMap)).apply()
     }
 
     private fun editMood(mood: String, value: Float) {
         moodsMap[mood] = value
-        val prefs = activity.getSharedPreferences(activity.getString(R.string.shared_prefs), Context.MODE_PRIVATE)
+        val prefs = activity.getSharedPreferences(
+            activity.getString(R.string.shared_prefs),
+            Context.MODE_PRIVATE
+        )
         prefs.edit().putString("moodsMap", Gson().toJson(moodsMap)).apply()
     }
 
