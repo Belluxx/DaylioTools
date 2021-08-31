@@ -1,4 +1,4 @@
-# DaylioTools ![Code quality](https://www.code-inspector.com/project/27034/score/svg) ![Downloads](https://img.shields.io/github/downloads/Belluxx/DaylioTools/total.svg)
+# DaylioTools ![Codacy grade](https://img.shields.io/codacy/grade/31ae2e0243f1469c9cb6bca3e2182dc8?style=for-the-badge) ![GitHub release](https://img.shields.io/github/downloads/Belluxx/DaylioTools/v1.0-beta2/total?label=DOWNLOADS%40Beta2&style=for-the-badge)
 An android app that visualizes and helps you to better understand [Daylio](https://play.google.com/store/apps/details?id=net.daylio) exported data.  
 Scroll to the bottom to see some screenshots.
 
