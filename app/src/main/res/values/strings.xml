@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Daylio Tools</string>
 
-    <string name="shared_prefs">om.pietrobellodi.dayliotools.BASEPREFS</string>
+    <string name="shared_prefs">com.pietrobellodi.dayliotools.BASEPREFS</string>
 
     <string name="choose_csv_file">Choose CSV file</string>
     <string name="show_moving_average">Show moving average</string>

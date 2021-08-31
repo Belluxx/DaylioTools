@@ -74,12 +74,6 @@ class MainActivity : AppCompatActivity() {
         getSharedPreferences(getString(R.string.shared_prefs), Context.MODE_PRIVATE).edit()
             .putBoolean("firstLaunch", false).apply()
 
-        // Show tutorial if first launch
-        if (firstLaunch) {
-            // val intent = Intent(this, HelpActivity::class.java)
-            // startActivity(intent)
-        }
-
         // Init colors
         if (isDarkModeOn()) {
             textColor = Color.parseColor("#FFFFFF")
