@@ -13,7 +13,8 @@
         tools:ignore="AllowBackup">
         <activity
             android:name=".ManageMoodsActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:label="Manage moods"/>
         <activity
             android:name=".HelpActivity"
             android:exported="true" />

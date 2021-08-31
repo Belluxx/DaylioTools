@@ -102,7 +102,7 @@ class MainActivity : AppCompatActivity() {
                 lineWidth = 1f
                 enableDashedLine(20f, 16f, 0f)
                 textColor = this@MainActivity.textColor
-                labelPosition = LimitLine.LimitLabelPosition.LEFT_BOTTOM
+                labelPosition = LimitLine.LimitLabelPosition.LEFT_TOP
             }
             val lowerLimit = LimitLine(MINIMUM_MOOD, "Awful").apply {
                 lineColor = Color.parseColor("#FF0000")
