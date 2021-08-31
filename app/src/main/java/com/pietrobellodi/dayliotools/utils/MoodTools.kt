@@ -72,6 +72,15 @@ class MoodTools(
         moodsMap = Gson().fromJson(data, moodsMap.javaClass)
     }
 
+    fun getSavedMoods(): MutableMap<String, Float> {
+        val prefs = activity.getSharedPreferences(
+            activity.getString(R.string.shared_prefs),
+            Context.MODE_PRIVATE
+        )
+        val data = prefs.getString("moodsMap", "")
+        return if (data == "") mutableMapOf() else Gson().fromJson(data, moodsMap.javaClass)
+    }
+
     private fun convertMoods(moods: Array<String>): Array<Float> {
         return moods.mapNotNull {
             if (moodsMap.containsKey(it)) {
@@ -92,6 +101,10 @@ class MoodTools(
 
     private fun readTextFile(uri: Uri): List<String> =
         cr.openInputStream(uri)?.bufferedReader()?.useLines { it.toList() }!!
+
+    fun savedMoodsChanged(): Boolean {
+        return moodsMap != getSavedMoods()
+    }
 
     class DefineMoodDialog(
         private val activity: Activity,

@@ -311,7 +311,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (mood_chart.data != null) {
+        if (mood_chart.data != null && mt.savedMoodsChanged()) {
             mt.loadMoods()
             reloadChart()
         }
