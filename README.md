@@ -1,4 +1,4 @@
-# DaylioTools ![Code quality](https://www.code-inspector.com/project/27034/score/svg)
+# DaylioTools ![Code quality](https://www.code-inspector.com/project/27034/score/svg) ![Downloads](https://img.shields.io/github/downloads/Belluxx/DaylioTools/total.svg)
 An android app that visualizes and helps you to better understand [Daylio](https://play.google.com/store/apps/details?id=net.daylio) exported data.  
 Scroll to the bottom to see some screenshots.
 
