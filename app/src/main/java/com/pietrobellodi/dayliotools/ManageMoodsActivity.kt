@@ -9,6 +9,9 @@ import com.pietrobellodi.dayliotools.utils.MoodCardAdapter
 import com.pietrobellodi.dayliotools.utils.MoodCardData
 import kotlinx.android.synthetic.main.activity_manage_moods.*
 
+/**
+ * This activity allows the user to edit or delete user-defined moods
+ */
 class ManageMoodsActivity : AppCompatActivity() {
 
     private lateinit var moodsData: ArrayList<MoodCardData>

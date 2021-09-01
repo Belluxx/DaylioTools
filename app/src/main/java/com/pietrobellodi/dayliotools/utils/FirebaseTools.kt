@@ -43,6 +43,13 @@ class FirebaseTools(private val addUser: Boolean, private val listener: OnDataRe
      * Custom listener for firebase events
      */
     interface OnDataRetrievedListener {
+        /**
+         * Called when data from firebase is read and provides
+         * useful data
+         *
+         * @param versionCode the version code of the app
+         * @param updateUrl the url to open if the app is outdated
+         */
         fun onRetrieved(versionCode: Int, updateUrl: String)
     }
 

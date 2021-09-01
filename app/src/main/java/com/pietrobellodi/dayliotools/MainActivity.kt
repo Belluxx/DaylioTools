@@ -22,6 +22,10 @@ import com.pietrobellodi.dayliotools.utils.FirebaseTools
 import com.pietrobellodi.dayliotools.utils.MoodTools
 import kotlinx.android.synthetic.main.activity_main.*
 
+/**
+ * This activity provides the main features of the app like
+ * chart view and settings
+ */
 class MainActivity : AppCompatActivity() {
 
     private val PICK_CSV_CODE = 10
@@ -291,6 +295,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Reloads the chart and saves the moods map after the user
+     * defined a new mood
+     */
     fun applyNewMoods() {
         reloadChart()
         mt.saveMoods()
